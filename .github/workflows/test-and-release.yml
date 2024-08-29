@@ -41,7 +41,7 @@ jobs:
         if: |
             always() &&
             github.event_name == 'pull_request'
-        needs: [adapter-tests-gui]
+        needs: [build]
         runs-on: macos-latest # ubuntu-latest has too few RAM
 
         steps:
