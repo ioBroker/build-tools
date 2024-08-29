@@ -1,4 +1,4 @@
-import {
+import fs, {
     existsSync,
     readFileSync,
     writeFileSync,
@@ -9,11 +9,18 @@ import {
     unlinkSync,
     mkdirSync,
 } from 'node:fs';
-import { exec, fork, type IOType } from 'node:child_process';
+import {
+    type ChildProcess,
+    exec, fork,
+    type IOType,
+} from 'node:child_process';
 import { dirname } from 'node:path';
 
+// Delete all folders recursive (sync function)
 export function deleteFoldersRecursive(
+    /** Path to the folder */
     path: string,
+    /** List of exceptions */
     exceptions?: string[],
 ): void {
     if (existsSync(path)) {
@@ -35,7 +42,8 @@ export function deleteFoldersRecursive(
     }
 }
 
-export function readDirRecursive(path: string, _list?: string[]): string[] {
+// Read all files in directory and subdirectories as one list (sync function)
+function readDirRecursive(path: string, _list?: string[]): string[] {
     _list = _list || [];
     const files = readdirSync(path);
     files.forEach((file: string) => {
@@ -50,7 +58,8 @@ export function readDirRecursive(path: string, _list?: string[]): string[] {
     return _list;
 }
 
-export function collectFiles(patterns: string[] | string): { name: string; base: string }[] {
+// Collect files by mask (sync function)
+function collectFiles(patterns: string[] | string): { name: string; base: string }[] {
     const _patterns = typeof patterns === 'string' ? [patterns] : patterns;
     const result = [];
     for (let i = 0; i < _patterns.length; i++) {
@@ -94,7 +103,11 @@ export function collectFiles(patterns: string[] | string): { name: string; base:
     return result.map(it => ({ name: it.name.substring(it.base.length + 1), base: it.base }));
 }
 
-export function copyFiles(patterns: string[] | string, dest: string) {
+// Copy files by pattern to destination (sync function)
+export function copyFiles(
+    patterns: string[] | string,
+    dest: string,
+) {
     const files = collectFiles(patterns);
     for (let f = 0; f < files.length; f++) {
         const destName = `${dest}/${files[f].name}`;
@@ -107,7 +120,14 @@ export function copyFiles(patterns: string[] | string, dest: string) {
     }
 }
 
-export function npmInstall(src: string): Promise<void> {
+// run npm install in directory (async function)
+export function npmInstall(
+    src: string,
+    options?: {
+        /** Set to false if you want to execute without `--force` flag */
+        force?: boolean,
+    }
+): Promise<void> {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
@@ -115,8 +135,7 @@ export function npmInstall(src: string): Promise<void> {
         // Install node modules
         const cwd = src.replace(/\\/g, '/');
 
-        const cmd = `npm install -f`;
-        console.log(`"${cmd} in ${cwd}`);
+        const cmd = `npm install${options?.force !== false ? ' --force' : ''}`;
 
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
@@ -138,43 +157,102 @@ export function npmInstall(src: string): Promise<void> {
     });
 }
 
-export function buildCraco(rootDir: string, src: string): Promise<void> {
+export function buildCraco(
+    /** React directory to build */
+    src: string,
+    options?: {
+        /** Root directory to copy the version from */
+        rootDir?: string,
+        /** Use exec and not fork */
+        exec?: boolean,
+        /** Max memory size for exec */
+        ramSize?: number,
+    },
+): Promise<void> {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
-    if (rootDir.endsWith('/')) {
-        rootDir = rootDir.substring(0, rootDir.length - 1);
+    let rootDir: string | undefined;
+
+    // Copy version number from root directory to src directory
+    if (options?.rootDir) {
+        rootDir = options.rootDir;
+        if (rootDir.endsWith('/')) {
+            rootDir = rootDir.substring(0, options.rootDir.length - 1);
+        }
+        const version = JSON.parse(readFileSync(`${rootDir}/package.json`).toString('utf8')).version;
+        const data    = JSON.parse(readFileSync(`${src}/package.json`).toString('utf8'));
+
+        data.version = version;
+
+        writeFileSync(`${src}/package.json`, JSON.stringify(data, null, 4));
     }
-    const version = JSON.parse(readFileSync(`${rootDir}/package.json`).toString('utf8')).version;
-    const data    = JSON.parse(readFileSync(`${src}/package.json`).toString('utf8'));
-
-    data.version = version;
-
-    writeFileSync(`${src}/package.json`, JSON.stringify(data, null, 4));
 
     return new Promise((resolve, reject) => {
-        const options = {
+        const cpOptions = {
             stdio: 'pipe' as IOType,
             cwd: src,
         };
 
-        console.log(options.cwd);
-
         let script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
-        if (!existsSync(script)) {
+        if (rootDir && !existsSync(script)) {
             script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
         }
         if (!existsSync(script)) {
             console.error(`Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
         } else {
-            const child = fork(script, ['build'], options);
+            let child: ChildProcess;
+            if (options?.ramSize || options?.exec) {
+                const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
+                child = exec(cmd, cpOptions);
+            } else {
+                child = fork(script, ['build'], cpOptions);
+            }
             child?.stdout?.on('data', data => console.log(data.toString()));
             child?.stderr?.on('data', data => console.log(data.toString()));
+
             child.on('close', code => {
                 console.log(`child process exited with code ${code}`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
+        }
+    });
+}
+
+function _patchHtmlFile(fileName: string): boolean {
+    let changed = false;
+    if (fs.existsSync(fileName)) {
+        let code = fs.readFileSync(fileName).toString('utf8');
+        // replace code
+        if (code.match(/<script>const script=document[^<]+<\/script>/)) {
+            code = code.replace(
+                /<script>const script=document[^<]+<\/script>/,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`
+            );
+            changed = true;
+        }
+        if (code.match(/<script>var script=document[^<]+<\/script>/)) {
+            code = code.replace(
+                /<script>var script=document[^<]+<\/script>/,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`
+            );
+            changed = true;
+        }
+        if (changed) {
+            fs.writeFileSync(fileName, code);
+        }
+    }
+    return changed;
+}
+
+export function patchHtmlFile(fileName: string): Promise<boolean> {
+    return new Promise(resolve => {
+        if (fs.existsSync(fileName)) {
+            resolve(_patchHtmlFile(fileName));
+        } else {
+            // wait till finished
+            setTimeout(() => resolve(_patchHtmlFile(fileName)), 2000);
         }
     });
 }
