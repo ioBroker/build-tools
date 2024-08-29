@@ -3,7 +3,13 @@ export declare function deleteFoldersRecursive(
 path: string, 
 /** List of exceptions */
 exceptions?: string[]): void;
-export declare function copyFiles(patterns: string[] | string, dest: string): void;
+export declare function copyFiles(patterns: string[] | string, dest: string, options?: {
+    process?: (fileData: string) => string;
+    replace?: {
+        find: string | RegExp;
+        text: string;
+    }[];
+}): void;
 export declare function npmInstall(src: string, options?: {
     /** Set to false if you want to execute without `--force` flag */
     force?: boolean;

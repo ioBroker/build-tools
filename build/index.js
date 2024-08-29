@@ -117,7 +117,7 @@ function collectFiles(patterns) {
     return result.map(it => ({ name: it.name.substring(it.base.length + 1), base: it.base }));
 }
 // Copy files by pattern to destination (sync function)
-function copyFiles(patterns, dest) {
+function copyFiles(patterns, dest, options) {
     const files = collectFiles(patterns);
     for (let f = 0; f < files.length; f++) {
         const destName = `${dest}/${files[f].name}`;
@@ -126,7 +126,21 @@ function copyFiles(patterns, dest) {
             (0, node_fs_1.mkdirSync)(folder, { recursive: true });
         }
         console.log(`Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
-        (0, node_fs_1.copyFileSync)(`${files[f].base}/${files[f].name}`, destName);
+        if (options) {
+            let data = (0, node_fs_1.readFileSync)(`${files[f].base}/${files[f].name}`).toString('utf8');
+            if (options.replace) {
+                for (let r = 0; r < options.replace.length; r++) {
+                    data = data.replace(options.replace[r].find, options.replace[r].text);
+                }
+            }
+            if (options.process) {
+                data = options.process(data);
+            }
+            (0, node_fs_1.writeFileSync)(destName, data);
+        }
+        else {
+            (0, node_fs_1.copyFileSync)(`${files[f].base}/${files[f].name}`, destName);
+        }
     }
 }
 // run npm install in directory (async function)
@@ -184,6 +198,13 @@ src, options) {
         let script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
         if (rootDir && !(0, node_fs_1.existsSync)(script)) {
             script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
+            if (!(0, node_fs_1.existsSync)(script)) {
+                // admin could have another structure
+                script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+                if (!(0, node_fs_1.existsSync)(script)) {
+                    script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                }
+            }
         }
         if (!(0, node_fs_1.existsSync)(script)) {
             console.error(`Cannot find execution file: ${script}`);
