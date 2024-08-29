@@ -29,7 +29,7 @@ And use in `package.json` `scripts`:
 -->
 ## Changelog
 
-### 0.1.0 (2024-08-29)
+### **WORK IN PROGRESS**
 * (bluefox) initial release
 
 ## License
