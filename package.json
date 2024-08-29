@@ -6,6 +6,9 @@
     "name": "Denis Haev",
     "email": "dogafox@gmail.com"
   },
+  "publishConfig": {
+    "access": "public"
+  },
   "engines": {
     "node": ">=16"
   },
