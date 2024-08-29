@@ -58,16 +58,18 @@ exceptions) {
 // Read all files in directory and subdirectories as one list (sync function)
 function readDirRecursive(path, _list) {
     _list = _list || [];
-    const files = (0, node_fs_1.readdirSync)(path);
-    files.forEach((file) => {
-        const fullPath = `${path}/${file}`;
-        if ((0, node_fs_1.statSync)(fullPath).isDirectory()) {
-            readDirRecursive(fullPath, _list);
-        }
-        else {
-            _list.push(fullPath);
-        }
-    });
+    if ((0, node_fs_1.existsSync)(path)) {
+        const files = (0, node_fs_1.readdirSync)(path);
+        files.forEach((file) => {
+            const fullPath = `${path}/${file}`;
+            if ((0, node_fs_1.statSync)(fullPath).isDirectory()) {
+                readDirRecursive(fullPath, _list);
+            }
+            else {
+                _list.push(fullPath);
+            }
+        });
+    }
     return _list;
 }
 // Collect files by mask (sync function)
