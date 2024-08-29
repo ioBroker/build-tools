@@ -28,7 +28,7 @@ And use in `package.json` `scripts`:
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 0.0.2 (2024-08-29)
+### **WORK IN PROGRESS**
 * (bluefox) initial release
 
 ## License
