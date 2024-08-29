@@ -45,15 +45,17 @@ export function deleteFoldersRecursive(
 // Read all files in directory and subdirectories as one list (sync function)
 function readDirRecursive(path: string, _list?: string[]): string[] {
     _list = _list || [];
-    const files = readdirSync(path);
-    files.forEach((file: string) => {
-        const fullPath = `${path}/${file}`;
-        if (statSync(fullPath).isDirectory()) {
-            readDirRecursive(fullPath, _list);
-        } else {
-            _list.push(fullPath);
-        }
-    });
+    if (existsSync(path)) {
+        const files = readdirSync(path);
+        files.forEach((file: string) => {
+            const fullPath = `${path}/${file}`;
+            if (statSync(fullPath).isDirectory()) {
+                readDirRecursive(fullPath, _list);
+            } else {
+                _list.push(fullPath);
+            }
+        });
+    }
 
     return _list;
 }

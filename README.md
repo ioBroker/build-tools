@@ -28,7 +28,7 @@ And use in `package.json` `scripts`:
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 0.0.5 (2024-08-29)
+### **WORK IN PROGRESS**
 * (bluefox) Added tools for admin: patchHtmlFile
 
 ### 0.0.3 (2024-08-29)
