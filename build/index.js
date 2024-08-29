@@ -1,15 +1,42 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFoldersRecursive = deleteFoldersRecursive;
-exports.readDirRecursive = readDirRecursive;
-exports.collectFiles = collectFiles;
 exports.copyFiles = copyFiles;
 exports.npmInstall = npmInstall;
 exports.buildCraco = buildCraco;
-const node_fs_1 = require("node:fs");
+exports.patchHtmlFile = patchHtmlFile;
+const node_fs_1 = __importStar(require("node:fs"));
 const node_child_process_1 = require("node:child_process");
 const node_path_1 = require("node:path");
-function deleteFoldersRecursive(path, exceptions) {
+// Delete all folders recursive (sync function)
+function deleteFoldersRecursive(
+/** Path to the folder */
+path, 
+/** List of exceptions */
+exceptions) {
     if ((0, node_fs_1.existsSync)(path)) {
         const files = (0, node_fs_1.readdirSync)(path);
         for (const file of files) {
@@ -28,6 +55,7 @@ function deleteFoldersRecursive(path, exceptions) {
         }
     }
 }
+// Read all files in directory and subdirectories as one list (sync function)
 function readDirRecursive(path, _list) {
     _list = _list || [];
     const files = (0, node_fs_1.readdirSync)(path);
@@ -42,6 +70,7 @@ function readDirRecursive(path, _list) {
     });
     return _list;
 }
+// Collect files by mask (sync function)
 function collectFiles(patterns) {
     const _patterns = typeof patterns === 'string' ? [patterns] : patterns;
     const result = [];
@@ -87,6 +116,7 @@ function collectFiles(patterns) {
     }
     return result.map(it => ({ name: it.name.substring(it.base.length + 1), base: it.base }));
 }
+// Copy files by pattern to destination (sync function)
 function copyFiles(patterns, dest) {
     const files = collectFiles(patterns);
     for (let f = 0; f < files.length; f++) {
@@ -99,7 +129,8 @@ function copyFiles(patterns, dest) {
         (0, node_fs_1.copyFileSync)(`${files[f].base}/${files[f].name}`, destName);
     }
 }
-function npmInstall(src) {
+// run npm install in directory (async function)
+function npmInstall(src, options) {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
@@ -107,8 +138,7 @@ function npmInstall(src) {
         var _a, _b;
         // Install node modules
         const cwd = src.replace(/\\/g, '/');
-        const cmd = `npm install -f`;
-        console.log(`"${cmd} in ${cwd}`);
+        const cmd = `npm install${(options === null || options === void 0 ? void 0 : options.force) !== false ? ' --force' : ''}`;
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
         const child = (0, node_child_process_1.exec)(cmd, { cwd });
@@ -127,26 +157,32 @@ function npmInstall(src) {
         });
     });
 }
-function buildCraco(rootDir, src) {
+function buildCraco(
+/** React directory to build */
+src, options) {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
-    if (rootDir.endsWith('/')) {
-        rootDir = rootDir.substring(0, rootDir.length - 1);
+    let rootDir;
+    // Copy version number from root directory to src directory
+    if (options === null || options === void 0 ? void 0 : options.rootDir) {
+        rootDir = options.rootDir;
+        if (rootDir.endsWith('/')) {
+            rootDir = rootDir.substring(0, options.rootDir.length - 1);
+        }
+        const version = JSON.parse((0, node_fs_1.readFileSync)(`${rootDir}/package.json`).toString('utf8')).version;
+        const data = JSON.parse((0, node_fs_1.readFileSync)(`${src}/package.json`).toString('utf8'));
+        data.version = version;
+        (0, node_fs_1.writeFileSync)(`${src}/package.json`, JSON.stringify(data, null, 4));
     }
-    const version = JSON.parse((0, node_fs_1.readFileSync)(`${rootDir}/package.json`).toString('utf8')).version;
-    const data = JSON.parse((0, node_fs_1.readFileSync)(`${src}/package.json`).toString('utf8'));
-    data.version = version;
-    (0, node_fs_1.writeFileSync)(`${src}/package.json`, JSON.stringify(data, null, 4));
     return new Promise((resolve, reject) => {
         var _a, _b;
-        const options = {
+        const cpOptions = {
             stdio: 'pipe',
             cwd: src,
         };
-        console.log(options.cwd);
         let script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
-        if (!(0, node_fs_1.existsSync)(script)) {
+        if (rootDir && !(0, node_fs_1.existsSync)(script)) {
             script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
         }
         if (!(0, node_fs_1.existsSync)(script)) {
@@ -154,13 +190,50 @@ function buildCraco(rootDir, src) {
             reject(`Cannot find execution file: ${script}`);
         }
         else {
-            const child = (0, node_child_process_1.fork)(script, ['build'], options);
+            let child;
+            if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec)) {
+                const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
+                child = (0, node_child_process_1.exec)(cmd, cpOptions);
+            }
+            else {
+                child = (0, node_child_process_1.fork)(script, ['build'], cpOptions);
+            }
             (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(data.toString()));
             (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(data.toString()));
             child.on('close', code => {
                 console.log(`child process exited with code ${code}`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
+        }
+    });
+}
+function _patchHtmlFile(fileName) {
+    let changed = false;
+    if (node_fs_1.default.existsSync(fileName)) {
+        let code = node_fs_1.default.readFileSync(fileName).toString('utf8');
+        // replace code
+        if (code.match(/<script>const script=document[^<]+<\/script>/)) {
+            code = code.replace(/<script>const script=document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
+            changed = true;
+        }
+        if (code.match(/<script>var script=document[^<]+<\/script>/)) {
+            code = code.replace(/<script>var script=document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
+            changed = true;
+        }
+        if (changed) {
+            node_fs_1.default.writeFileSync(fileName, code);
+        }
+    }
+    return changed;
+}
+function patchHtmlFile(fileName) {
+    return new Promise(resolve => {
+        if (node_fs_1.default.existsSync(fileName)) {
+            resolve(_patchHtmlFile(fileName));
+        }
+        else {
+            // wait till finished
+            setTimeout(() => resolve(_patchHtmlFile(fileName)), 2000);
         }
     });
 }
