@@ -107,6 +107,10 @@ function collectFiles(patterns: string[] | string): { name: string; base: string
 export function copyFiles(
     patterns: string[] | string,
     dest: string,
+    options?: {
+        process?: (fileData: string) => string,
+        replace?: { find: string | RegExp, text: string }[],
+    },
 ) {
     const files = collectFiles(patterns);
     for (let f = 0; f < files.length; f++) {
@@ -116,7 +120,20 @@ export function copyFiles(
             mkdirSync(folder, { recursive: true });
         }
         console.log(`Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
-        copyFileSync(`${files[f].base}/${files[f].name}`, destName);
+        if (options) {
+            let data = readFileSync(`${files[f].base}/${files[f].name}`).toString('utf8');
+            if (options.replace) {
+                for (let r = 0; r < options.replace.length; r++) {
+                    data = data.replace(options.replace[r].find, options.replace[r].text);
+                }
+            }
+            if (options.process) {
+                data = options.process(data);
+            }
+            writeFileSync(destName, data);
+        } else {
+            copyFileSync(`${files[f].base}/${files[f].name}`, destName);
+        }
     }
 }
 
@@ -197,6 +214,13 @@ export function buildCraco(
         let script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
         if (rootDir && !existsSync(script)) {
             script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
+            if (!existsSync(script)) {
+                // admin could have another structure
+                script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+                if (!existsSync(script)) {
+                    script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                }
+            }
         }
         if (!existsSync(script)) {
             console.error(`Cannot find execution file: ${script}`);
