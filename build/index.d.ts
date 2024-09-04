@@ -14,6 +14,18 @@ export declare function npmInstall(src: string, options?: {
     /** Set to false if you want to execute without `--force` flag */
     force?: boolean;
 }): Promise<void>;
+export declare function buildReact(
+/** React directory to build */
+src: string, options?: {
+    /** use craco instead of react-scripts */
+    craco?: boolean;
+    /** Root directory to copy the version from */
+    rootDir?: string;
+    /** Use exec and not fork */
+    exec?: boolean;
+    /** Max memory size for exec */
+    ramSize?: number;
+}): Promise<void>;
 export declare function buildCraco(
 /** React directory to build */
 src: string, options?: {

@@ -26,6 +26,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFoldersRecursive = deleteFoldersRecursive;
 exports.copyFiles = copyFiles;
 exports.npmInstall = npmInstall;
+exports.buildReact = buildReact;
 exports.buildCraco = buildCraco;
 exports.patchHtmlFile = patchHtmlFile;
 const node_fs_1 = __importStar(require("node:fs"));
@@ -173,7 +174,7 @@ function npmInstall(src, options) {
         });
     });
 }
-function buildCraco(
+function buildReact(
 /** React directory to build */
 src, options) {
     if (src.endsWith('/')) {
@@ -197,14 +198,30 @@ src, options) {
             stdio: 'pipe',
             cwd: src,
         };
-        let script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
-        if (rootDir && !(0, node_fs_1.existsSync)(script)) {
-            script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
-            if (!(0, node_fs_1.existsSync)(script)) {
-                // admin could have another structure
-                script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+        let script;
+        if (options === null || options === void 0 ? void 0 : options.craco) {
+            script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
+            if (rootDir && !(0, node_fs_1.existsSync)(script)) {
+                script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
                 if (!(0, node_fs_1.existsSync)(script)) {
-                    script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                    // admin could have another structure
+                    script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+                    if (!(0, node_fs_1.existsSync)(script)) {
+                        script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                    }
+                }
+            }
+        }
+        else {
+            script = `${src}/node_modules/react-scripts/scripts/build.js`;
+            if (rootDir && !(0, node_fs_1.existsSync)(script)) {
+                script = `${rootDir}/node_modules/react-scripts/scripts/build.js`;
+                if (!(0, node_fs_1.existsSync)(script)) {
+                    // admin could have another structure
+                    script = `${rootDir}/../node_modules/react-scripts/scripts/build.js`;
+                    if (!(0, node_fs_1.existsSync)(script)) {
+                        script = `${rootDir}/../../node_modules/react-scripts/scripts/build.js`;
+                    }
                 }
             }
         }
@@ -229,6 +246,12 @@ src, options) {
             });
         }
     });
+}
+function buildCraco(
+/** React directory to build */
+src, options) {
+    console.warn('buildCraco deprecated: Please use buildReact with craco option');
+    return buildReact(src, { craco: true, ...options });
 }
 function _patchHtmlFile(fileName) {
     let changed = false;

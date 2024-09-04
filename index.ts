@@ -176,10 +176,12 @@ export function npmInstall(
     });
 }
 
-export function buildCraco(
+export function buildReact(
     /** React directory to build */
     src: string,
     options?: {
+        /** use craco instead of react-scripts */
+        craco?: boolean,
         /** Root directory to copy the version from */
         rootDir?: string,
         /** Use exec and not fork */
@@ -213,17 +215,33 @@ export function buildCraco(
             cwd: src,
         };
 
-        let script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
-        if (rootDir && !existsSync(script)) {
-            script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
-            if (!existsSync(script)) {
-                // admin could have another structure
-                script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+        let script;
+        if (options?.craco) {
+            script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
+            if (rootDir && !existsSync(script)) {
+                script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
                 if (!existsSync(script)) {
-                    script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                    // admin could have another structure
+                    script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+                    if (!existsSync(script)) {
+                        script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                    }
+                }
+            }
+        } else {
+            script = `${src}/node_modules/react-scripts/scripts/build.js`;
+            if (rootDir && !existsSync(script)) {
+                script = `${rootDir}/node_modules/react-scripts/scripts/build.js`;
+                if (!existsSync(script)) {
+                    // admin could have another structure
+                    script = `${rootDir}/../node_modules/react-scripts/scripts/build.js`;
+                    if (!existsSync(script)) {
+                        script = `${rootDir}/../../node_modules/react-scripts/scripts/build.js`;
+                    }
                 }
             }
         }
+
         if (!existsSync(script)) {
             console.error(`Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
@@ -244,6 +262,22 @@ export function buildCraco(
             });
         }
     });
+}
+
+export function buildCraco(
+    /** React directory to build */
+    src: string,
+    options?: {
+        /** Root directory to copy the version from */
+        rootDir?: string,
+        /** Use exec and not fork */
+        exec?: boolean,
+        /** Max memory size for exec */
+        ramSize?: number,
+    },
+): Promise<void> {
+    console.warn('buildCraco deprecated: Please use buildReact with craco option');
+    return buildReact(src, { craco: true, ...options });
 }
 
 function _patchHtmlFile(fileName: string): boolean {
