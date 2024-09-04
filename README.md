@@ -28,7 +28,7 @@ And use in `package.json` `scripts`:
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 0.0.7 (2024-09-04)
+### **WORK IN PROGRESS**
 * (bluefox) Added buildReact method
 
 ### 0.0.6 (2024-08-29)

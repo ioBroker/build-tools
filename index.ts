@@ -14,7 +14,7 @@ import {
     exec, fork,
     type IOType,
 } from 'node:child_process';
-import { dirname } from 'node:path';
+import { dirname, join } from 'node:path';
 
 // Delete all folders recursive (sync function)
 export function deleteFoldersRecursive(
@@ -79,7 +79,12 @@ function collectFiles(patterns: string[] | string): { name: string; base: string
             folderParts.pop();
             folder = folderParts.join('/');
         }
-        const files = readDirRecursive(folder);
+        let files;
+        if (!folder) {
+            files = readdirSync('.');
+        } else {
+            files = readDirRecursive(folder);
+        }
         // convert pattern "src-admin/build/static/js/*.js" to regex "src-admin/build/static/js/[^\.]+\.js"
         if (_patterns[i].endsWith('*')) {
             _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^\/]+');
@@ -102,7 +107,7 @@ function collectFiles(patterns: string[] | string): { name: string; base: string
             }
         }
     }
-    return result.map(it => ({ name: it.name.substring(it.base.length + 1), base: it.base }));
+    return result.map(it => ({ name: it.base ? it.name.substring(it.base.length + 1) : it.name, base: it.base }));
 }
 
 // Copy files by pattern to destination (sync function)
@@ -113,17 +118,17 @@ export function copyFiles(
         process?: (fileData: string) => string,
         replace?: { find: string | RegExp, text: string }[],
     },
-) {
+): void {
     const files = collectFiles(patterns);
     for (let f = 0; f < files.length; f++) {
-        const destName = `${dest}/${files[f].name}`;
+        const destName = join(dest, files[f].name);
         const folder = dirname(destName);
         if (!existsSync(folder)) {
             mkdirSync(folder, { recursive: true });
         }
         console.log(`Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
-            let data = readFileSync(`${files[f].base}/${files[f].name}`).toString('utf8');
+            let data = readFileSync(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString('utf8');
             if (options.replace) {
                 for (let r = 0; r < options.replace.length; r++) {
                     data = data.replace(options.replace[r].find, options.replace[r].text);
@@ -134,7 +139,7 @@ export function copyFiles(
             }
             writeFileSync(destName, data);
         } else {
-            copyFileSync(`${files[f].base}/${files[f].name}`, destName);
+            copyFileSync(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name, destName);
         }
     }
 }
@@ -158,7 +163,7 @@ export function npmInstall(
 
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
-        const child = exec(cmd, {cwd});
+        const child = exec(cmd, { cwd });
 
         child?.stderr?.pipe(process.stderr);
         child?.stdout?.pipe(process.stdout);
