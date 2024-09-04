@@ -66,4 +66,5 @@ module.exports = {
         'prefer-const': 'error',
         'no-trailing-spaces': 'error',
     },
+    ignorePatterns: ['node_modules/', 'build/', 'dist/'],
 };
