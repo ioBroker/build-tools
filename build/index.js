@@ -93,7 +93,13 @@ function collectFiles(patterns) {
             folderParts.pop();
             folder = folderParts.join('/');
         }
-        const files = readDirRecursive(folder);
+        let files;
+        if (!folder) {
+            files = (0, node_fs_1.readdirSync)('.');
+        }
+        else {
+            files = readDirRecursive(folder);
+        }
         // convert pattern "src-admin/build/static/js/*.js" to regex "src-admin/build/static/js/[^\.]+\.js"
         if (_patterns[i].endsWith('*')) {
             _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^\/]+');
@@ -117,20 +123,20 @@ function collectFiles(patterns) {
             }
         }
     }
-    return result.map(it => ({ name: it.name.substring(it.base.length + 1), base: it.base }));
+    return result.map(it => ({ name: it.base ? it.name.substring(it.base.length + 1) : it.name, base: it.base }));
 }
 // Copy files by pattern to destination (sync function)
 function copyFiles(patterns, dest, options) {
     const files = collectFiles(patterns);
     for (let f = 0; f < files.length; f++) {
-        const destName = `${dest}/${files[f].name}`;
+        const destName = (0, node_path_1.join)(dest, files[f].name);
         const folder = (0, node_path_1.dirname)(destName);
         if (!(0, node_fs_1.existsSync)(folder)) {
             (0, node_fs_1.mkdirSync)(folder, { recursive: true });
         }
         console.log(`Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
-            let data = (0, node_fs_1.readFileSync)(`${files[f].base}/${files[f].name}`).toString('utf8');
+            let data = (0, node_fs_1.readFileSync)(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString('utf8');
             if (options.replace) {
                 for (let r = 0; r < options.replace.length; r++) {
                     data = data.replace(options.replace[r].find, options.replace[r].text);
@@ -142,7 +148,7 @@ function copyFiles(patterns, dest, options) {
             (0, node_fs_1.writeFileSync)(destName, data);
         }
         else {
-            (0, node_fs_1.copyFileSync)(`${files[f].base}/${files[f].name}`, destName);
+            (0, node_fs_1.copyFileSync)(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name, destName);
         }
     }
 }
