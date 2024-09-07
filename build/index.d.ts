@@ -3,6 +3,11 @@ export declare function deleteFoldersRecursive(
 path: string, 
 /** List of exceptions */
 exceptions?: string[]): void;
+export declare function readDirRecursive(path: string, _list?: string[]): string[];
+export declare function collectFiles(patterns: string[] | string): {
+    name: string;
+    base: string;
+}[];
 export declare function copyFiles(patterns: string[] | string, dest: string, options?: {
     process?: (fileData: string) => string;
     replace?: {

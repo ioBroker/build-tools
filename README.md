@@ -28,6 +28,9 @@ And use in `package.json` `scripts`:
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Export `collectFiles` method
+
 ### 0.1.0 (2024-09-04)
 * (bluefox) Added buildReact method
 

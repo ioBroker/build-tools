@@ -24,6 +24,8 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFoldersRecursive = deleteFoldersRecursive;
+exports.readDirRecursive = readDirRecursive;
+exports.collectFiles = collectFiles;
 exports.copyFiles = copyFiles;
 exports.npmInstall = npmInstall;
 exports.buildReact = buildReact;

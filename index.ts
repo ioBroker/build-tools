@@ -43,7 +43,7 @@ export function deleteFoldersRecursive(
 }
 
 // Read all files in directory and subdirectories as one list (sync function)
-function readDirRecursive(path: string, _list?: string[]): string[] {
+export function readDirRecursive(path: string, _list?: string[]): string[] {
     _list = _list || [];
     if (existsSync(path)) {
         const files = readdirSync(path);
@@ -61,7 +61,7 @@ function readDirRecursive(path: string, _list?: string[]): string[] {
 }
 
 // Collect files by mask (sync function)
-function collectFiles(patterns: string[] | string): { name: string; base: string }[] {
+export function collectFiles(patterns: string[] | string): { name: string; base: string }[] {
     const _patterns = typeof patterns === 'string' ? [patterns] : patterns;
     const result = [];
     for (let i = 0; i < _patterns.length; i++) {
