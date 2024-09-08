@@ -50,10 +50,20 @@ exceptions) {
             const stat = (0, node_fs_1.statSync)(curPath);
             if (stat.isDirectory()) {
                 deleteFoldersRecursive(curPath);
-                (0, node_fs_1.rmdirSync)(curPath);
+                try {
+                    (0, node_fs_1.rmdirSync)(curPath);
+                }
+                catch (e) {
+                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                }
             }
             else {
-                (0, node_fs_1.unlinkSync)(curPath);
+                try {
+                    (0, node_fs_1.unlinkSync)(curPath);
+                }
+                catch (e) {
+                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                }
             }
         }
     }

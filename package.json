@@ -1,6 +1,6 @@
 {
   "name": "@iobroker/build-tools",
-  "version": "0.1.1",
+  "version": "1.0.0",
   "description": "Replacement for gulp",
   "author": {
     "name": "Denis Haev",
