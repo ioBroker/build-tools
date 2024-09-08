@@ -28,6 +28,9 @@ And use in `package.json` `scripts`:
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added `copyFolderRecursiveSync`
+
 ### 1.0.0 (2024-09-08)
 * (bluefox) Catch the errors by deletion
 

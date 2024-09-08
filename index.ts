@@ -16,7 +16,9 @@ import {
 } from 'node:child_process';
 import { dirname, join } from 'node:path';
 
-// Delete all folders recursive (sync function)
+/**
+ * Delete all folders recursive (sync function)
+ */
 export function deleteFoldersRecursive(
     /** Path to the folder */
     path: string,
@@ -47,6 +49,30 @@ export function deleteFoldersRecursive(
                 }
             }
         }
+    }
+}
+
+/**
+ * Copies folder recursive (sync function)
+ */
+export function copyFolderRecursiveSync(
+    /** Source folder */
+    src: string,
+    /** Destination folder */
+    dest: string,
+    /** List of files to exclude */
+    exclude?: string[],
+): void {
+    const stats = existsSync(src) ? statSync(src) : null;
+    if (stats && stats.isDirectory()) {
+        !fs.existsSync(dest) && fs.mkdirSync(dest);
+        fs.readdirSync(src).forEach(childItemName=> {
+            copyFolderRecursiveSync(
+                join(src, childItemName),
+                join(dest, childItemName));
+        });
+    } else if (!exclude || !exclude.find(ext => src.endsWith(ext))) {
+        copyFileSync(src, dest);
     }
 }
 
@@ -154,7 +180,9 @@ export function copyFiles(
 
 // run npm install in directory (async function)
 export function npmInstall(
+    /** Path to the folder where npm must be executed */
     src: string,
+    /** Options */
     options?: {
         /** Set to false if you want to execute without `--force` flag */
         force?: boolean,
@@ -192,6 +220,7 @@ export function npmInstall(
 export function buildReact(
     /** React directory to build */
     src: string,
+    /** Options */
     options?: {
         /** use craco instead of react-scripts */
         craco?: boolean,
@@ -277,9 +306,11 @@ export function buildReact(
     });
 }
 
+/** @deprecated use buildReact with the craco flag */
 export function buildCraco(
     /** React directory to build */
     src: string,
+    /** Options */
     options?: {
         /** Root directory to copy the version from */
         rootDir?: string,
@@ -319,6 +350,7 @@ function _patchHtmlFile(fileName: string): boolean {
     return changed;
 }
 
+// Patch html file (async function)
 export function patchHtmlFile(fileName: string): Promise<boolean> {
     return new Promise(resolve => {
         if (fs.existsSync(fileName)) {
