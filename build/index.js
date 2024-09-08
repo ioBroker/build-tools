@@ -24,6 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deleteFoldersRecursive = deleteFoldersRecursive;
+exports.copyFolderRecursiveSync = copyFolderRecursiveSync;
 exports.readDirRecursive = readDirRecursive;
 exports.collectFiles = collectFiles;
 exports.copyFiles = copyFiles;
@@ -34,7 +35,9 @@ exports.patchHtmlFile = patchHtmlFile;
 const node_fs_1 = __importStar(require("node:fs"));
 const node_child_process_1 = require("node:child_process");
 const node_path_1 = require("node:path");
-// Delete all folders recursive (sync function)
+/**
+ * Delete all folders recursive (sync function)
+ */
 function deleteFoldersRecursive(
 /** Path to the folder */
 path, 
@@ -66,6 +69,27 @@ exceptions) {
                 }
             }
         }
+    }
+}
+/**
+ * Copies folder recursive (sync function)
+ */
+function copyFolderRecursiveSync(
+/** Source folder */
+src, 
+/** Destination folder */
+dest, 
+/** List of files to exclude */
+exclude) {
+    const stats = (0, node_fs_1.existsSync)(src) ? (0, node_fs_1.statSync)(src) : null;
+    if (stats && stats.isDirectory()) {
+        !node_fs_1.default.existsSync(dest) && node_fs_1.default.mkdirSync(dest);
+        node_fs_1.default.readdirSync(src).forEach(childItemName => {
+            copyFolderRecursiveSync((0, node_path_1.join)(src, childItemName), (0, node_path_1.join)(dest, childItemName));
+        });
+    }
+    else if (!exclude || !exclude.find(ext => src.endsWith(ext))) {
+        (0, node_fs_1.copyFileSync)(src, dest);
     }
 }
 // Read all files in directory and subdirectories as one list (sync function)
@@ -165,7 +189,11 @@ function copyFiles(patterns, dest, options) {
     }
 }
 // run npm install in directory (async function)
-function npmInstall(src, options) {
+function npmInstall(
+/** Path to the folder where npm must be executed */
+src, 
+/** Options */
+options) {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
@@ -194,7 +222,9 @@ function npmInstall(src, options) {
 }
 function buildReact(
 /** React directory to build */
-src, options) {
+src, 
+/** Options */
+options) {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
@@ -265,9 +295,12 @@ src, options) {
         }
     });
 }
+/** @deprecated use buildReact with the craco flag */
 function buildCraco(
 /** React directory to build */
-src, options) {
+src, 
+/** Options */
+options) {
     console.warn('buildCraco deprecated: Please use buildReact with craco option');
     return buildReact(src, { craco: true, ...options });
 }
@@ -290,6 +323,7 @@ function _patchHtmlFile(fileName) {
     }
     return changed;
 }
+// Patch html file (async function)
 function patchHtmlFile(fileName) {
     return new Promise(resolve => {
         if (node_fs_1.default.existsSync(fileName)) {
