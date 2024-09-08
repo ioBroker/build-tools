@@ -34,9 +34,17 @@ export function deleteFoldersRecursive(
             const stat = statSync(curPath);
             if (stat.isDirectory()) {
                 deleteFoldersRecursive(curPath);
-                rmdirSync(curPath);
+                try {
+                    rmdirSync(curPath);
+                } catch (e) {
+                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                }
             } else {
-                unlinkSync(curPath);
+                try {
+                    unlinkSync(curPath);
+                } catch (e) {
+                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                }
             }
         }
     }

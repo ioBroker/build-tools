@@ -28,7 +28,10 @@ And use in `package.json` `scripts`:
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 0.1.1 (2024-09-07)
+### **WORK IN PROGRESS**
+* (bluefox) Catch the errors by deletion
+
+### 0.1.1 (2024-09-04)
 * (bluefox) Export `collectFiles` method
 
 ### 0.1.0 (2024-09-04)
