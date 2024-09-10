@@ -38,7 +38,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.2 (2024-09-10)
 * (bluefox) Added i18n convert script
 
 ### 1.0.1 (2024-09-08)

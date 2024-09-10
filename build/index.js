@@ -323,7 +323,7 @@ function _patchHtmlFile(fileName) {
     }
     return changed;
 }
-// Patch html file (async function)
+// Patch an HTML file (async function)
 function patchHtmlFile(fileName) {
     return new Promise(resolve => {
         if (node_fs_1.default.existsSync(fileName)) {
