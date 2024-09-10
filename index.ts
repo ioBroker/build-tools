@@ -350,7 +350,7 @@ function _patchHtmlFile(fileName: string): boolean {
     return changed;
 }
 
-// Patch html file (async function)
+// Patch an HTML file (async function)
 export function patchHtmlFile(fileName: string): Promise<boolean> {
     return new Promise(resolve => {
         if (fs.existsSync(fileName)) {

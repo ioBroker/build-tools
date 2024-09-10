@@ -23,11 +23,24 @@ And use in `package.json` `scripts`:
 }
 ```
 
+## Converting i18n structure
+You can convert the old i18n structure i18n/lang/translations.json to the new structure i18n/lang.json with the following command:
+```
+node node_modules/@iobroker/build-tools/convertI18n.js
+```
+Optionally, you can specify the path to the i18n folder:
+```
+node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
+```
+
 <!--
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added i18n convert script
+
 ### 1.0.1 (2024-09-08)
 * (bluefox) Added `copyFolderRecursiveSync`
 
