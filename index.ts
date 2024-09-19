@@ -13,6 +13,8 @@ import {
     type ChildProcess,
     exec, fork,
     type IOType,
+    type CommonSpawnOptions,
+    type ExecOptions,
 } from 'node:child_process';
 import { dirname, join } from 'node:path';
 
@@ -252,9 +254,13 @@ export function buildReact(
     }
 
     return new Promise((resolve, reject) => {
-        const cpOptions = {
+        const cpOptions: CommonSpawnOptions = {
             stdio: 'pipe' as IOType,
             cwd: src,
+        };
+
+        cpOptions.env = {
+            DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
         };
 
         let script;
@@ -291,7 +297,7 @@ export function buildReact(
             let child: ChildProcess;
             if (options?.ramSize || options?.exec) {
                 const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
-                child = exec(cmd, cpOptions);
+                child = exec(cmd, cpOptions as ExecOptions);
             } else {
                 child = fork(script, ['build'], cpOptions);
             }
