@@ -246,6 +246,9 @@ options) {
             stdio: 'pipe',
             cwd: src,
         };
+        cpOptions.env = {
+            DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
+        };
         let script;
         if (options === null || options === void 0 ? void 0 : options.craco) {
             script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
