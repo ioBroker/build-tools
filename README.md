@@ -38,7 +38,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### **WORK IN PROGRESS**
+### 1.0.3 (2024-09-19)
 * (bluefox) Added DANGEROUSLY_DISABLE_HOST_CHECK for buildReact
 
 ### 1.0.2 (2024-09-10)
