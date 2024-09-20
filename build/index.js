@@ -29,6 +29,7 @@ exports.readDirRecursive = readDirRecursive;
 exports.collectFiles = collectFiles;
 exports.copyFiles = copyFiles;
 exports.npmInstall = npmInstall;
+exports.tsc = tsc;
 exports.buildReact = buildReact;
 exports.buildCraco = buildCraco;
 exports.patchHtmlFile = patchHtmlFile;
@@ -220,6 +221,52 @@ options) {
         });
     });
 }
+function tsc(
+/** React directory to build */
+src, options) {
+    if (src.endsWith('/')) {
+        src = src.substring(0, src.length - 1);
+    }
+    let rootDir;
+    if (options === null || options === void 0 ? void 0 : options.rootDir) {
+        rootDir = options.rootDir;
+        if (rootDir.endsWith('/')) {
+            rootDir = rootDir.substring(0, options.rootDir.length - 1);
+        }
+    }
+    return new Promise((resolve, reject) => {
+        var _a, _b;
+        const cpOptions = {
+            stdio: 'pipe',
+            cwd: src,
+        };
+        let script;
+        script = `${src}/node_modules/typescript/bin/tsc`;
+        if (rootDir && !(0, node_fs_1.existsSync)(script)) {
+            script = `${rootDir}/node_modules/typescript/bin/tsc`;
+            if (!(0, node_fs_1.existsSync)(script)) {
+                // admin could have another structure
+                script = `${rootDir}/../node_modules/typescript/bin/tsc`;
+                if (!(0, node_fs_1.existsSync)(script)) {
+                    script = `${rootDir}/../../node_modules/typescript/bin/tsc`;
+                }
+            }
+        }
+        if (!(0, node_fs_1.existsSync)(script)) {
+            console.error(`Cannot find execution file: ${script}`);
+            reject(`Cannot find execution file: ${script}`);
+        }
+        else {
+            const child = (0, node_child_process_1.fork)(script, [], cpOptions);
+            (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(data.toString()));
+            (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(data.toString()));
+            child.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                code ? reject(`Exit code: ${code}`) : resolve();
+            });
+        }
+    });
+}
 function buildReact(
 /** React directory to build */
 src, 
@@ -240,7 +287,7 @@ options) {
         data.version = version;
         (0, node_fs_1.writeFileSync)(`${src}/package.json`, JSON.stringify(data, null, 4));
     }
-    return new Promise((resolve, reject) => {
+    const reactPromise = new Promise((resolve, reject) => {
         var _a, _b;
         const cpOptions = {
             stdio: 'pipe',
@@ -259,6 +306,19 @@ options) {
                     script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
                     if (!(0, node_fs_1.existsSync)(script)) {
                         script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                    }
+                }
+            }
+        }
+        else if (options === null || options === void 0 ? void 0 : options.vite) {
+            script = `${src}/node_modules/vite/bin/vite.js`;
+            if (rootDir && !(0, node_fs_1.existsSync)(script)) {
+                script = `${rootDir}/node_modules/vite/bin/vite.js`;
+                if (!(0, node_fs_1.existsSync)(script)) {
+                    // admin could have another structure
+                    script = `${rootDir}/../node_modules/vite/bin/vite.js`;
+                    if (!(0, node_fs_1.existsSync)(script)) {
+                        script = `${rootDir}/../../node_modules/vite/bin/vite.js`;
                     }
                 }
             }
@@ -297,6 +357,11 @@ options) {
             });
         }
     });
+    if (options === null || options === void 0 ? void 0 : options.tsc) {
+        return tsc(src, options)
+            .then(() => reactPromise);
+    }
+    return reactPromise;
 }
 /** @deprecated use buildReact with the craco flag */
 function buildCraco(

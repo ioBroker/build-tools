@@ -36,6 +36,12 @@ options?: {
     /** Set to false if you want to execute without `--force` flag */
     force?: boolean;
 }): Promise<void>;
+export declare function tsc(
+/** React directory to build */
+src: string, options?: {
+    /** Root directory to copy the version from */
+    rootDir?: string;
+}): Promise<void>;
 export declare function buildReact(
 /** React directory to build */
 src: string, 
@@ -49,6 +55,10 @@ options?: {
     exec?: boolean;
     /** Max memory size for exec */
     ramSize?: number;
+    /** Use vite for build */
+    vite?: boolean;
+    /** execute tsc before building ReactJS */
+    tsc?: boolean;
 }): Promise<void>;
 /** @deprecated use buildReact with the craco flag */
 export declare function buildCraco(

@@ -219,6 +219,59 @@ export function npmInstall(
     });
 }
 
+export function tsc(
+    /** React directory to build */
+    src: string,
+    options?: {
+        /** Root directory to copy the version from */
+        rootDir?: string,
+    },
+): Promise<void> {
+    if (src.endsWith('/')) {
+        src = src.substring(0, src.length - 1);
+    }
+    let rootDir: string | undefined;if (options?.rootDir) {
+        rootDir = options.rootDir;
+        if (rootDir.endsWith('/')) {
+            rootDir = rootDir.substring(0, options.rootDir.length - 1);
+        }
+    }
+
+    return new Promise((resolve, reject) => {
+        const cpOptions: CommonSpawnOptions = {
+            stdio: 'pipe' as IOType,
+            cwd: src,
+        };
+
+        let script;
+        script = `${src}/node_modules/typescript/bin/tsc`;
+        if (rootDir && !existsSync(script)) {
+            script = `${rootDir}/node_modules/typescript/bin/tsc`;
+            if (!existsSync(script)) {
+                // admin could have another structure
+                script = `${rootDir}/../node_modules/typescript/bin/tsc`;
+                if (!existsSync(script)) {
+                    script = `${rootDir}/../../node_modules/typescript/bin/tsc`;
+                }
+            }
+        }
+
+        if (!existsSync(script)) {
+            console.error(`Cannot find execution file: ${script}`);
+            reject(`Cannot find execution file: ${script}`);
+        } else {
+            const child: ChildProcess = fork(script, [], cpOptions);
+            child?.stdout?.on('data', data => console.log(data.toString()));
+            child?.stderr?.on('data', data => console.log(data.toString()));
+
+            child.on('close', code => {
+                console.log(`child process exited with code ${code}`);
+                code ? reject(`Exit code: ${code}`) : resolve();
+            });
+        }
+    });
+}
+
 export function buildReact(
     /** React directory to build */
     src: string,
@@ -232,6 +285,10 @@ export function buildReact(
         exec?: boolean,
         /** Max memory size for exec */
         ramSize?: number,
+        /** Use vite for build */
+        vite?: boolean,
+        /** execute tsc before building ReactJS */
+        tsc?: boolean,
     },
 ): Promise<void> {
     if (src.endsWith('/')) {
@@ -252,8 +309,7 @@ export function buildReact(
 
         writeFileSync(`${src}/package.json`, JSON.stringify(data, null, 4));
     }
-
-    return new Promise((resolve, reject) => {
+    const reactPromise: Promise<void> = new Promise((resolve, reject) => {
         const cpOptions: CommonSpawnOptions = {
             stdio: 'pipe' as IOType,
             cwd: src,
@@ -276,7 +332,19 @@ export function buildReact(
                     }
                 }
             }
-        } else {
+        } else if (options?.vite) {
+            script = `${src}/node_modules/vite/bin/vite.js`;
+            if (rootDir && !existsSync(script)) {
+                script = `${rootDir}/node_modules/vite/bin/vite.js`;
+                if (!existsSync(script)) {
+                    // admin could have another structure
+                    script = `${rootDir}/../node_modules/vite/bin/vite.js`;
+                    if (!existsSync(script)) {
+                        script = `${rootDir}/../../node_modules/vite/bin/vite.js`;
+                    }
+                }
+            }
+        }else {
             script = `${src}/node_modules/react-scripts/scripts/build.js`;
             if (rootDir && !existsSync(script)) {
                 script = `${rootDir}/node_modules/react-scripts/scripts/build.js`;
@@ -310,6 +378,12 @@ export function buildReact(
             });
         }
     });
+
+    if (options?.tsc) {
+        return tsc(src, options)
+            .then(() => reactPromise);
+    }
+    return reactPromise;
 }
 
 /** @deprecated use buildReact with the craco flag */

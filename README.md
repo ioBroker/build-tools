@@ -38,6 +38,9 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added the build support for vite and typescript 
+
 ### 1.0.3 (2024-09-19)
 * (bluefox) Added DANGEROUSLY_DISABLE_HOST_CHECK for buildReact
 
