@@ -196,6 +196,7 @@ export function npmInstall(
     return new Promise((resolve, reject) => {
         // Install node modules
         const cwd = src.replace(/\\/g, '/');
+        const start = Date.now();
 
         const cmd = `npm install${options?.force !== false ? ' --force' : ''}`;
 
@@ -212,7 +213,7 @@ export function npmInstall(
             if (code && code !== 1) {
                 reject(`Cannot install: ${code}`);
             } else {
-                console.log(`[${new Date().toISOString()}] "${cmd} in ${cwd} finished.`);
+                console.log(`[${new Date().toISOString()}] "${cmd}" in "${cwd}" finished in ${Date.now() - start}ms.`);
                 // command succeeded
                 resolve();
             }
@@ -243,6 +244,7 @@ export function tsc(
             stdio: 'pipe' as IOType,
             cwd: src,
         };
+        const start = Date.now();
 
         let script;
         script = `${src}/node_modules/typescript/bin/tsc`;
@@ -266,7 +268,7 @@ export function tsc(
             child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
 
             child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -296,6 +298,7 @@ export function buildReact(
         src = src.substring(0, src.length - 1);
     }
     let rootDir: string | undefined;
+    const start = Date.now();
 
     // Copy version number from root directory to src directory
     if (options?.rootDir) {
@@ -379,7 +382,7 @@ export function buildReact(
             child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
 
             child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
