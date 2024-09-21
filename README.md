@@ -38,8 +38,8 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
-### 1.0.8 (2024-09-21)
-* (bluefox) added `patternForWidgetsFiles`
+### **WORK IN PROGRESS**
+* (bluefox) added `copyWidgetsFiles` and `ignoreWidgetFiles`
 
 ### 1.0.7 (2024-09-21)
 * (bluefox) Added log outputs

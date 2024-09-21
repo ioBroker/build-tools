@@ -439,7 +439,28 @@ function _patchHtmlFile(fileName: string): boolean {
     return changed;
 }
 
-export function patternForWidgetsFiles(src: string): string[] {
+export function ignoreWidgetFiles(src: string, doNotIgnoreMap?: boolean): string[] {
+    src = src || './src-widgets/';
+    if (!src.endsWith('/')) {
+        src += '/';
+    }
+    let list = [
+        `!${src}build/static/js/node_modules*.*`,
+        `!${src}build/static/js/vendors-node_modules*.*`,
+        `!${src}build/static/js/main*.*`,
+        `!${src}build/static/js/src_bootstrap*.*`,
+    ];
+    if (!doNotIgnoreMap) {
+        list = list.concat([
+            `!${src}build/static/*.map`,
+            `!${src}build/static/**/*.map`,
+        ]);
+    }
+
+    return list;
+}
+
+export function copyWidgetsFiles(src: string): string[] {
     src = src || './src-widgets/';
     if (!src.endsWith('/')) {
         src += '/';
