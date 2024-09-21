@@ -38,6 +38,9 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) Added log outputs
+
 ### 1.0.4 (2024-09-20)
 * (bluefox) Added the build support for vite and typescript
 

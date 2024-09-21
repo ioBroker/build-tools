@@ -41,13 +41,13 @@ export function deleteFoldersRecursive(
                 try {
                     rmdirSync(curPath);
                 } catch (e) {
-                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                    console.warn(`[${new Date().toISOString()}] Cannot delete "${curPath}: ${e}`);
                 }
             } else {
                 try {
                     unlinkSync(curPath);
                 } catch (e) {
-                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                    console.warn(`[${new Date().toISOString()}] Cannot delete "${curPath}: ${e}`);
                 }
             }
         }
@@ -162,7 +162,7 @@ export function copyFiles(
         if (!existsSync(folder)) {
             mkdirSync(folder, { recursive: true });
         }
-        console.log(`Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
+        console.log(`[${new Date().toISOString()}] Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
             let data = readFileSync(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString('utf8');
             if (options.replace) {
@@ -211,7 +211,7 @@ export function npmInstall(
             if (code && code !== 1) {
                 reject(`Cannot install: ${code}`);
             } else {
-                console.log(`"${cmd} in ${cwd} finished.`);
+                console.log(`[${new Date().toISOString()}] "${cmd} in ${cwd} finished.`);
                 // command succeeded
                 resolve();
             }
@@ -257,15 +257,15 @@ export function tsc(
         }
 
         if (!existsSync(script)) {
-            console.error(`Cannot find execution file: ${script}`);
+            console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
         } else {
             const child: ChildProcess = fork(script, [], cpOptions);
-            child?.stdout?.on('data', data => console.log(data.toString()));
-            child?.stderr?.on('data', data => console.log(data.toString()));
+            child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+            child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
 
             child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -305,9 +305,12 @@ export function buildReact(
         const version = JSON.parse(readFileSync(`${rootDir}/package.json`).toString('utf8')).version;
         const data    = JSON.parse(readFileSync(`${src}/package.json`).toString('utf8'));
 
-        data.version = version;
+        if (data.version !== version) {
+            console.log(`[${new Date().toISOString()}] updated version in "${src}/package.json to "${version}"`);
+            data.version = version;
 
-        writeFileSync(`${src}/package.json`, JSON.stringify(data, null, 4));
+            writeFileSync(`${src}/package.json`, JSON.stringify(data, null, 4));
+        }
     }
     const reactPromise: Promise<void> = new Promise((resolve, reject) => {
         const cpOptions: CommonSpawnOptions = {
@@ -344,7 +347,7 @@ export function buildReact(
                     }
                 }
             }
-        }else {
+        } else {
             script = `${src}/node_modules/react-scripts/scripts/build.js`;
             if (rootDir && !existsSync(script)) {
                 script = `${rootDir}/node_modules/react-scripts/scripts/build.js`;
@@ -359,21 +362,23 @@ export function buildReact(
         }
 
         if (!existsSync(script)) {
-            console.error(`Cannot find execution file: ${script}`);
+            console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
         } else {
             let child: ChildProcess;
             if (options?.ramSize || options?.exec) {
                 const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
+                console.log(`[${new Date().toISOString()}] Execute: "${cmd}" ${JSON.stringify(cpOptions)}`);
                 child = exec(cmd, cpOptions as ExecOptions);
             } else {
+                console.log(`[${new Date().toISOString()}] fork: "${script} build" ${JSON.stringify(cpOptions)}`);
                 child = fork(script, ['build'], cpOptions);
             }
-            child?.stdout?.on('data', data => console.log(data.toString()));
-            child?.stderr?.on('data', data => console.log(data.toString()));
+            child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+            child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
 
             child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -400,7 +405,7 @@ export function buildCraco(
         ramSize?: number,
     },
 ): Promise<void> {
-    console.warn('buildCraco deprecated: Please use buildReact with craco option');
+    console.warn(`[${new Date().toISOString()}] buildCraco deprecated: Please use buildReact with craco option`);
     return buildReact(src, { craco: true, ...options });
 }
 
