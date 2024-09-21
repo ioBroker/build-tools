@@ -58,7 +58,7 @@ exceptions) {
                     (0, node_fs_1.rmdirSync)(curPath);
                 }
                 catch (e) {
-                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                    console.warn(`[${new Date().toISOString()}] Cannot delete "${curPath}: ${e}`);
                 }
             }
             else {
@@ -66,7 +66,7 @@ exceptions) {
                     (0, node_fs_1.unlinkSync)(curPath);
                 }
                 catch (e) {
-                    console.warn(`Cannot delete "${curPath}: ${e}`);
+                    console.warn(`[${new Date().toISOString()}] Cannot delete "${curPath}: ${e}`);
                 }
             }
         }
@@ -171,7 +171,7 @@ function copyFiles(patterns, dest, options) {
         if (!(0, node_fs_1.existsSync)(folder)) {
             (0, node_fs_1.mkdirSync)(folder, { recursive: true });
         }
-        console.log(`Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
+        console.log(`[${new Date().toISOString()}] Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
             let data = (0, node_fs_1.readFileSync)(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString('utf8');
             if (options.replace) {
@@ -214,7 +214,7 @@ options) {
                 reject(`Cannot install: ${code}`);
             }
             else {
-                console.log(`"${cmd} in ${cwd} finished.`);
+                console.log(`[${new Date().toISOString()}] "${cmd} in ${cwd} finished.`);
                 // command succeeded
                 resolve();
             }
@@ -253,15 +253,15 @@ src, options) {
             }
         }
         if (!(0, node_fs_1.existsSync)(script)) {
-            console.error(`Cannot find execution file: ${script}`);
+            console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
         }
         else {
             const child = (0, node_child_process_1.fork)(script, [], cpOptions);
-            (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(data.toString()));
-            (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(data.toString()));
+            (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+            (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -284,8 +284,11 @@ options) {
         }
         const version = JSON.parse((0, node_fs_1.readFileSync)(`${rootDir}/package.json`).toString('utf8')).version;
         const data = JSON.parse((0, node_fs_1.readFileSync)(`${src}/package.json`).toString('utf8'));
-        data.version = version;
-        (0, node_fs_1.writeFileSync)(`${src}/package.json`, JSON.stringify(data, null, 4));
+        if (data.version !== version) {
+            console.log(`[${new Date().toISOString()}] updated version in "${src}/package.json to "${version}"`);
+            data.version = version;
+            (0, node_fs_1.writeFileSync)(`${src}/package.json`, JSON.stringify(data, null, 4));
+        }
     }
     const reactPromise = new Promise((resolve, reject) => {
         var _a, _b;
@@ -337,22 +340,24 @@ options) {
             }
         }
         if (!(0, node_fs_1.existsSync)(script)) {
-            console.error(`Cannot find execution file: ${script}`);
+            console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
             reject(`Cannot find execution file: ${script}`);
         }
         else {
             let child;
             if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec)) {
                 const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
+                console.log(`[${new Date().toISOString()}] Execute: "${cmd}" ${JSON.stringify(cpOptions)}`);
                 child = (0, node_child_process_1.exec)(cmd, cpOptions);
             }
             else {
+                console.log(`[${new Date().toISOString()}] fork: "${script} build" ${JSON.stringify(cpOptions)}`);
                 child = (0, node_child_process_1.fork)(script, ['build'], cpOptions);
             }
-            (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(data.toString()));
-            (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(data.toString()));
+            (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+            (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child.on('close', code => {
-                console.log(`child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -369,7 +374,7 @@ function buildCraco(
 src, 
 /** Options */
 options) {
-    console.warn('buildCraco deprecated: Please use buildReact with craco option');
+    console.warn(`[${new Date().toISOString()}] buildCraco deprecated: Please use buildReact with craco option`);
     return buildReact(src, { craco: true, ...options });
 }
 function _patchHtmlFile(fileName) {
