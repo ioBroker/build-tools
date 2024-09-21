@@ -32,6 +32,7 @@ exports.npmInstall = npmInstall;
 exports.tsc = tsc;
 exports.buildReact = buildReact;
 exports.buildCraco = buildCraco;
+exports.patternForWidgetsFiles = patternForWidgetsFiles;
 exports.patchHtmlFile = patchHtmlFile;
 const node_fs_1 = __importStar(require("node:fs"));
 const node_child_process_1 = require("node:child_process");
@@ -202,6 +203,7 @@ options) {
         var _a, _b;
         // Install node modules
         const cwd = src.replace(/\\/g, '/');
+        const start = Date.now();
         const cmd = `npm install${(options === null || options === void 0 ? void 0 : options.force) !== false ? ' --force' : ''}`;
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
@@ -215,7 +217,7 @@ options) {
                 reject(`Cannot install: ${code}`);
             }
             else {
-                console.log(`[${new Date().toISOString()}] "${cmd} in ${cwd} finished.`);
+                console.log(`[${new Date().toISOString()}] "${cmd}" in "${cwd}" finished in ${Date.now() - start}ms.`);
                 // command succeeded
                 resolve();
             }
@@ -241,6 +243,7 @@ src, options) {
             stdio: 'pipe',
             cwd: src,
         };
+        const start = Date.now();
         let script;
         script = `${src}/node_modules/typescript/bin/tsc`;
         if (rootDir && !(0, node_fs_1.existsSync)(script)) {
@@ -262,7 +265,7 @@ src, options) {
             (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -277,6 +280,7 @@ options) {
         src = src.substring(0, src.length - 1);
     }
     let rootDir;
+    const start = Date.now();
     // Copy version number from root directory to src directory
     if (options === null || options === void 0 ? void 0 : options.rootDir) {
         rootDir = options.rootDir;
@@ -358,7 +362,7 @@ options) {
             (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code}`);
+                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
                 code ? reject(`Exit code: ${code}`) : resolve();
             });
         }
@@ -396,6 +400,36 @@ function _patchHtmlFile(fileName) {
         }
     }
     return changed;
+}
+function patternForWidgetsFiles(src) {
+    src = src || './src-widgets/';
+    if (!src.endsWith('/')) {
+        src += '/';
+    }
+    return [
+        `${src}build/static/js/*fast-xml*.*`,
+        `${src}build/static/js/*react-swipeable*.*`,
+        `${src}build/static/js/*moment_*.*`,
+        `${src}build/static/js/*react-beautiful-dnd*.*`,
+        `${src}build/static/js/*vis-2-widgets-react-dev_index_jsx*.*`,
+        `${src}build/static/js/*vis-2-widgets-react-dev_node_modules_babel_runtime_helpers*.*`,
+        `${src}build/static/js/*runtime_helpers_asyncToGenerator*.*`,
+        `${src}build/static/js/*modules_color*.*`,
+        `${src}build/static/js/*echarts-for-react_lib_core_js-node_modules_echarts_core_js-*.chunk.*`,
+        `${src}build/static/js/*echarts_lib*.*`,
+        `${src}build/static/js/*vis-2-widgets-react-dev_node_modules_babel_runtime_helpers*.*`,
+        `${src}build/static/js/*leaflet*.*`,
+        `${src}build/static/js/*react-circular*.*`,
+        `${src}build/static/js/*d3-array_src_index_js-node_modules_d3-collection_src_index_js-*.*`,
+        `${src}build/static/js/*d3-dispatch_*.*`,
+        `${src}build/static/js/*lodash_*.*`,
+        `${src}build/static/js/*react-battery-gauge_dist_react-battery-gauge*.*`,
+        `${src}build/static/js/*react-gauge-chart*.*`,
+        `${src}build/static/js/*react-liquid-gauge*.*`,
+        `${src}build/static/js/*helpers_esm_asyncToGener*.*`,
+        `${src}build/static/js/*emotion_styled_dist*.*`,
+        `${src}build/static/js/*mui_system_colorManipulator*.*`,
+    ];
 }
 // Patch an HTML file (async function)
 function patchHtmlFile(fileName) {

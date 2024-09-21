@@ -73,4 +73,5 @@ options?: {
     /** Max memory size for exec */
     ramSize?: number;
 }): Promise<void>;
+export declare function patternForWidgetsFiles(src: string): string[];
 export declare function patchHtmlFile(fileName: string): Promise<boolean>;
