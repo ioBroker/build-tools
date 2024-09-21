@@ -32,7 +32,8 @@ exports.npmInstall = npmInstall;
 exports.tsc = tsc;
 exports.buildReact = buildReact;
 exports.buildCraco = buildCraco;
-exports.patternForWidgetsFiles = patternForWidgetsFiles;
+exports.ignoreWidgetFiles = ignoreWidgetFiles;
+exports.copyWidgetsFiles = copyWidgetsFiles;
 exports.patchHtmlFile = patchHtmlFile;
 const node_fs_1 = __importStar(require("node:fs"));
 const node_child_process_1 = require("node:child_process");
@@ -401,7 +402,26 @@ function _patchHtmlFile(fileName) {
     }
     return changed;
 }
-function patternForWidgetsFiles(src) {
+function ignoreWidgetFiles(src, doNotIgnoreMap) {
+    src = src || './src-widgets/';
+    if (!src.endsWith('/')) {
+        src += '/';
+    }
+    let list = [
+        `!${src}build/static/js/node_modules*.*`,
+        `!${src}build/static/js/vendors-node_modules*.*`,
+        `!${src}build/static/js/main*.*`,
+        `!${src}build/static/js/src_bootstrap*.*`,
+    ];
+    if (!doNotIgnoreMap) {
+        list = list.concat([
+            `!${src}build/static/*.map`,
+            `!${src}build/static/**/*.map`,
+        ]);
+    }
+    return list;
+}
+function copyWidgetsFiles(src) {
     src = src || './src-widgets/';
     if (!src.endsWith('/')) {
         src += '/';

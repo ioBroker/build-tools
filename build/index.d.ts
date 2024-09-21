@@ -73,5 +73,6 @@ options?: {
     /** Max memory size for exec */
     ramSize?: number;
 }): Promise<void>;
-export declare function patternForWidgetsFiles(src: string): string[];
+export declare function ignoreWidgetFiles(src: string, doNotIgnoreMap?: boolean): string[];
+export declare function copyWidgetsFiles(src: string): string[];
 export declare function patchHtmlFile(fileName: string): Promise<boolean>;
