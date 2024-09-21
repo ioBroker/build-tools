@@ -6,7 +6,7 @@ This module is a replacement for gulp that is commonly used in ioBroker reposito
 
 First, you need to install the module:
 
-```
+```shell
 npm install @iobroker/build-tools --save-dev
 ```
 
@@ -25,11 +25,11 @@ And use in `package.json` `scripts`:
 
 ## Converting i18n structure
 You can convert the old i18n structure i18n/lang/translations.json to the new structure i18n/lang.json with the following command:
-```
+```shell
 node node_modules/@iobroker/build-tools/convertI18n.js
 ```
 Optionally, you can specify the path to the i18n folder:
-```
+```shell
 node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 ```
 
@@ -38,6 +38,9 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     ### **WORK IN PROGRESS**
 -->
 ## Changelog
+### **WORK IN PROGRESS**
+* (bluefox) added `patternForWidgetsFiles`
+
 ### 1.0.7 (2024-09-21)
 * (bluefox) Added log outputs
 

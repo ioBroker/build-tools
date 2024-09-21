@@ -439,6 +439,38 @@ function _patchHtmlFile(fileName: string): boolean {
     return changed;
 }
 
+export function patternForWidgetsFiles(src: string): string[] {
+    src = src || './src-widgets/';
+    if (!src.endsWith('/')) {
+        src += '/';
+    }
+
+    return [
+        `${src}build/static/js/*fast-xml*.*`,
+        `${src}build/static/js/*react-swipeable*.*`,
+        `${src}build/static/js/*moment_*.*`,
+        `${src}build/static/js/*react-beautiful-dnd*.*`,
+        `${src}build/static/js/*vis-2-widgets-react-dev_index_jsx*.*`,
+        `${src}build/static/js/*vis-2-widgets-react-dev_node_modules_babel_runtime_helpers*.*`,
+        `${src}build/static/js/*runtime_helpers_asyncToGenerator*.*`,
+        `${src}build/static/js/*modules_color*.*`,
+        `${src}build/static/js/*echarts-for-react_lib_core_js-node_modules_echarts_core_js-*.chunk.*`,
+        `${src}build/static/js/*echarts_lib*.*`,
+        `${src}build/static/js/*vis-2-widgets-react-dev_node_modules_babel_runtime_helpers*.*`,
+        `${src}build/static/js/*leaflet*.*`,
+        `${src}build/static/js/*react-circular*.*`,
+        `${src}build/static/js/*d3-array_src_index_js-node_modules_d3-collection_src_index_js-*.*`,
+        `${src}build/static/js/*d3-dispatch_*.*`,
+        `${src}build/static/js/*lodash_*.*`,
+        `${src}build/static/js/*react-battery-gauge_dist_react-battery-gauge*.*`,
+        `${src}build/static/js/*react-gauge-chart*.*`,
+        `${src}build/static/js/*react-liquid-gauge*.*`,
+        `${src}build/static/js/*helpers_esm_asyncToGener*.*`,
+        `${src}build/static/js/*emotion_styled_dist*.*`,
+        `${src}build/static/js/*mui_system_colorManipulator*.*`,
+    ];
+}
+
 // Patch an HTML file (async function)
 export function patchHtmlFile(fileName: string): Promise<boolean> {
     return new Promise(resolve => {
