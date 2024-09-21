@@ -205,6 +205,7 @@ options) {
         const cmd = `npm install${(options === null || options === void 0 ? void 0 : options.force) !== false ? ' --force' : ''}`;
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
+        console.log(`[${new Date().toISOString()}] executing: "${cmd}"`);
         const child = (0, node_child_process_1.exec)(cmd, { cwd });
         (_a = child === null || child === void 0 ? void 0 : child.stderr) === null || _a === void 0 ? void 0 : _a.pipe(process.stderr);
         (_b = child === null || child === void 0 ? void 0 : child.stdout) === null || _b === void 0 ? void 0 : _b.pipe(process.stdout);
