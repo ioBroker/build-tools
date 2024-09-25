@@ -11,7 +11,8 @@ import fs, {
 } from 'node:fs';
 import {
     type ChildProcess,
-    exec, fork,
+    exec,
+    fork,
     type IOType,
     type CommonSpawnOptions,
     type ExecOptions,
@@ -68,10 +69,8 @@ export function copyFolderRecursiveSync(
     const stats = existsSync(src) ? statSync(src) : null;
     if (stats && stats.isDirectory()) {
         !fs.existsSync(dest) && fs.mkdirSync(dest);
-        fs.readdirSync(src).forEach(childItemName=> {
-            copyFolderRecursiveSync(
-                join(src, childItemName),
-                join(dest, childItemName));
+        fs.readdirSync(src).forEach(childItemName => {
+            copyFolderRecursiveSync(join(src, childItemName), join(dest, childItemName));
         });
     } else if (!exclude || !exclude.find(ext => src.endsWith(ext))) {
         copyFileSync(src, dest);
@@ -123,9 +122,9 @@ export function collectFiles(patterns: string[] | string): { name: string; base:
         }
         // convert pattern "src-admin/build/static/js/*.js" to regex "src-admin/build/static/js/[^\.]+\.js"
         if (_patterns[i].endsWith('*')) {
-            _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^\/]+');
+            _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+');
         } else {
-            _patterns[i] = `${_patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^\/]+')}$`;
+            _patterns[i] = `${_patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+')}$`;
         }
         _patterns[i] = `^${_patterns[i]}`;
 
@@ -151,8 +150,8 @@ export function copyFiles(
     patterns: string[] | string,
     dest: string,
     options?: {
-        process?: (fileData: string) => string,
-        replace?: { find: string | RegExp, text: string }[],
+        process?: (fileData: string) => string;
+        replace?: { find: string | RegExp; text: string }[];
     },
 ): void {
     const files = collectFiles(patterns);
@@ -164,7 +163,9 @@ export function copyFiles(
         }
         console.log(`[${new Date().toISOString()}] Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
-            let data = readFileSync(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString('utf8');
+            let data = readFileSync(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString(
+                'utf8',
+            );
             if (options.replace) {
                 for (let r = 0; r < options.replace.length; r++) {
                     data = data.replace(options.replace[r].find, options.replace[r].text);
@@ -187,8 +188,8 @@ export function npmInstall(
     /** Options */
     options?: {
         /** Set to false if you want to execute without `--force` flag */
-        force?: boolean,
-    }
+        force?: boolean;
+    },
 ): Promise<void> {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
@@ -211,7 +212,7 @@ export function npmInstall(
         child.on('exit', (code /* , signal */) => {
             // code 1 is a strange error that cannot be explained. Everything is installed but error :(
             if (code && code !== 1) {
-                reject(`Cannot install: ${code}`);
+                reject(new Error(`Cannot install: ${code}`));
             } else {
                 console.log(`[${new Date().toISOString()}] "${cmd}" in "${cwd}" finished in ${Date.now() - start}ms.`);
                 // command succeeded
@@ -226,13 +227,14 @@ export function tsc(
     src: string,
     options?: {
         /** Root directory to copy the version from */
-        rootDir?: string,
+        rootDir?: string;
     },
 ): Promise<void> {
     if (src.endsWith('/')) {
         src = src.substring(0, src.length - 1);
     }
-    let rootDir: string | undefined;if (options?.rootDir) {
+    let rootDir: string | undefined;
+    if (options?.rootDir) {
         rootDir = options.rootDir;
         if (rootDir.endsWith('/')) {
             rootDir = rootDir.substring(0, options.rootDir.length - 1);
@@ -261,15 +263,17 @@ export function tsc(
 
         if (!existsSync(script)) {
             console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
-            reject(`Cannot find execution file: ${script}`);
+            reject(new Error(`Cannot find execution file: ${script}`));
         } else {
             const child: ChildProcess = fork(script, [], cpOptions);
             child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
 
             child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
-                code ? reject(`Exit code: ${code}`) : resolve();
+                console.log(
+                    `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
+                );
+                code ? reject(new Error(`Exit code: ${code}`)) : resolve();
             });
         }
     });
@@ -281,17 +285,17 @@ export function buildReact(
     /** Options */
     options?: {
         /** use craco instead of react-scripts */
-        craco?: boolean,
+        craco?: boolean;
         /** Root directory to copy the version from */
-        rootDir?: string,
+        rootDir?: string;
         /** Use exec and not fork */
-        exec?: boolean,
+        exec?: boolean;
         /** Max memory size for exec */
-        ramSize?: number,
+        ramSize?: number;
         /** Use vite for build */
-        vite?: boolean,
+        vite?: boolean;
         /** execute tsc before building ReactJS */
-        tsc?: boolean,
+        tsc?: boolean;
     },
 ): Promise<void> {
     if (src.endsWith('/')) {
@@ -307,7 +311,7 @@ export function buildReact(
             rootDir = rootDir.substring(0, options.rootDir.length - 1);
         }
         const version = JSON.parse(readFileSync(`${rootDir}/package.json`).toString('utf8')).version;
-        const data    = JSON.parse(readFileSync(`${src}/package.json`).toString('utf8'));
+        const data = JSON.parse(readFileSync(`${src}/package.json`).toString('utf8'));
 
         if (data.version !== version) {
             console.log(`[${new Date().toISOString()}] updated version in "${src}/package.json to "${version}"`);
@@ -367,7 +371,7 @@ export function buildReact(
 
         if (!existsSync(script)) {
             console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
-            reject(`Cannot find execution file: ${script}`);
+            reject(new Error(`Cannot find execution file: ${script}`));
         } else {
             let child: ChildProcess;
             if (options?.ramSize || options?.exec) {
@@ -382,15 +386,16 @@ export function buildReact(
             child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
 
             child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
-                code ? reject(`Exit code: ${code}`) : resolve();
+                console.log(
+                    `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
+                );
+                code ? reject(new Error(`Exit code: ${code}`)) : resolve();
             });
         }
     });
 
     if (options?.tsc) {
-        return tsc(src, options)
-            .then(() => reactPromise);
+        return tsc(src, options).then(() => reactPromise);
     }
     return reactPromise;
 }
@@ -402,11 +407,11 @@ export function buildCraco(
     /** Options */
     options?: {
         /** Root directory to copy the version from */
-        rootDir?: string,
+        rootDir?: string;
         /** Use exec and not fork */
-        exec?: boolean,
+        exec?: boolean;
         /** Max memory size for exec */
-        ramSize?: number,
+        ramSize?: number;
     },
 ): Promise<void> {
     console.warn(`[${new Date().toISOString()}] buildCraco deprecated: Please use buildReact with craco option`);
@@ -418,17 +423,17 @@ function _patchHtmlFile(fileName: string): boolean {
     if (fs.existsSync(fileName)) {
         let code = fs.readFileSync(fileName).toString('utf8');
         // replace code
-        if (code.match(/<script>const script=document[^<]+<\/script>/)) {
+        if (code.match(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/)) {
             code = code.replace(
-                /<script>const script=document[^<]+<\/script>/,
-                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`
+                /<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`,
             );
             changed = true;
         }
-        if (code.match(/<script>var script=document[^<]+<\/script>/)) {
+        if (code.match(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/)) {
             code = code.replace(
-                /<script>var script=document[^<]+<\/script>/,
-                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`
+                /<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`,
             );
             changed = true;
         }
@@ -451,10 +456,7 @@ export function ignoreWidgetFiles(src: string, doNotIgnoreMap?: boolean): string
         `!${src}build/static/js/src_bootstrap*.*`,
     ];
     if (!doNotIgnoreMap) {
-        list = list.concat([
-            `!${src}build/static/*.map`,
-            `!${src}build/static/**/*.map`,
-        ]);
+        list = list.concat([`!${src}build/static/*.map`, `!${src}build/static/**/*.map`]);
     }
 
     return list;

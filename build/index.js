@@ -141,10 +141,10 @@ function collectFiles(patterns) {
         }
         // convert pattern "src-admin/build/static/js/*.js" to regex "src-admin/build/static/js/[^\.]+\.js"
         if (_patterns[i].endsWith('*')) {
-            _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^\/]+');
+            _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+');
         }
         else {
-            _patterns[i] = `${_patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^\/]+')}$`;
+            _patterns[i] = `${_patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+')}$`;
         }
         _patterns[i] = `^${_patterns[i]}`;
         const regex = new RegExp(_patterns[i]);
@@ -215,7 +215,7 @@ options) {
         child.on('exit', (code /* , signal */) => {
             // code 1 is a strange error that cannot be explained. Everything is installed but error :(
             if (code && code !== 1) {
-                reject(`Cannot install: ${code}`);
+                reject(new Error(`Cannot install: ${code}`));
             }
             else {
                 console.log(`[${new Date().toISOString()}] "${cmd}" in "${cwd}" finished in ${Date.now() - start}ms.`);
@@ -259,7 +259,7 @@ src, options) {
         }
         if (!(0, node_fs_1.existsSync)(script)) {
             console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
-            reject(`Cannot find execution file: ${script}`);
+            reject(new Error(`Cannot find execution file: ${script}`));
         }
         else {
             const child = (0, node_child_process_1.fork)(script, [], cpOptions);
@@ -267,7 +267,7 @@ src, options) {
             (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child.on('close', code => {
                 console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
-                code ? reject(`Exit code: ${code}`) : resolve();
+                code ? reject(new Error(`Exit code: ${code}`)) : resolve();
             });
         }
     });
@@ -347,7 +347,7 @@ options) {
         }
         if (!(0, node_fs_1.existsSync)(script)) {
             console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
-            reject(`Cannot find execution file: ${script}`);
+            reject(new Error(`Cannot find execution file: ${script}`));
         }
         else {
             let child;
@@ -364,13 +364,12 @@ options) {
             (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
             child.on('close', code => {
                 console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
-                code ? reject(`Exit code: ${code}`) : resolve();
+                code ? reject(new Error(`Exit code: ${code}`)) : resolve();
             });
         }
     });
     if (options === null || options === void 0 ? void 0 : options.tsc) {
-        return tsc(src, options)
-            .then(() => reactPromise);
+        return tsc(src, options).then(() => reactPromise);
     }
     return reactPromise;
 }
@@ -388,12 +387,12 @@ function _patchHtmlFile(fileName) {
     if (node_fs_1.default.existsSync(fileName)) {
         let code = node_fs_1.default.readFileSync(fileName).toString('utf8');
         // replace code
-        if (code.match(/<script>const script=document[^<]+<\/script>/)) {
-            code = code.replace(/<script>const script=document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
+        if (code.match(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/)) {
+            code = code.replace(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
             changed = true;
         }
-        if (code.match(/<script>var script=document[^<]+<\/script>/)) {
-            code = code.replace(/<script>var script=document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
+        if (code.match(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/)) {
+            code = code.replace(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
             changed = true;
         }
         if (changed) {
@@ -414,10 +413,7 @@ function ignoreWidgetFiles(src, doNotIgnoreMap) {
         `!${src}build/static/js/src_bootstrap*.*`,
     ];
     if (!doNotIgnoreMap) {
-        list = list.concat([
-            `!${src}build/static/*.map`,
-            `!${src}build/static/**/*.map`,
-        ]);
+        list = list.concat([`!${src}build/static/*.map`, `!${src}build/static/**/*.map`]);
     }
     return list;
 }

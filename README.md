@@ -13,6 +13,7 @@ npm install @iobroker/build-tools --save-dev
 Then you can create a file `tasks.js` in the root of your repository with the similar content as [tasks.js](tasks.js):
 
 And use in `package.json` `scripts`:
+
 ```json
 "scripts": {
     "task0clean": "node tasks --0-clean",
@@ -24,11 +25,15 @@ And use in `package.json` `scripts`:
 ```
 
 ## Converting i18n structure
+
 You can convert the old i18n structure i18n/lang/translations.json to the new structure i18n/lang.json with the following command:
+
 ```shell
 node node_modules/@iobroker/build-tools/convertI18n.js
 ```
+
 Optionally, you can specify the path to the i18n folder:
+
 ```shell
 node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 ```
@@ -37,39 +42,57 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
     Placeholder for the next version (at the beginning of the line):
     ### **WORK IN PROGRESS**
 -->
+
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+-   (bluefox) optimized the pacht of HTML file
+-   (bluefox) Used `eslint-config` of ioBroker
+
 ### 1.0.9 (2024-09-21)
-* (bluefox) added `copyWidgetsFiles` and `ignoreWidgetFiles`
+
+-   (bluefox) added `copyWidgetsFiles` and `ignoreWidgetFiles`
 
 ### 1.0.7 (2024-09-21)
-* (bluefox) Added log outputs
+
+-   (bluefox) Added log outputs
 
 ### 1.0.4 (2024-09-20)
-* (bluefox) Added the build support for vite and typescript
+
+-   (bluefox) Added the build support for vite and typescript
 
 ### 1.0.3 (2024-09-19)
-* (bluefox) Added DANGEROUSLY_DISABLE_HOST_CHECK for buildReact
+
+-   (bluefox) Added DANGEROUSLY_DISABLE_HOST_CHECK for buildReact
 
 ### 1.0.2 (2024-09-10)
-* (bluefox) Added i18n convert script
+
+-   (bluefox) Added i18n convert script
 
 ### 1.0.1 (2024-09-08)
-* (bluefox) Added `copyFolderRecursiveSync`
+
+-   (bluefox) Added `copyFolderRecursiveSync`
 
 ### 1.0.0 (2024-09-08)
-* (bluefox) Catch the errors by deletion
+
+-   (bluefox) Catch the errors by deletion
 
 ### 0.1.1 (2024-09-04)
-* (bluefox) Export `collectFiles` method
+
+-   (bluefox) Export `collectFiles` method
 
 ### 0.1.0 (2024-09-04)
-* (bluefox) Added buildReact method
+
+-   (bluefox) Added buildReact method
 
 ### 0.0.6 (2024-08-29)
-* (bluefox) Added tools for admin: patchHtmlFile
+
+-   (bluefox) Added tools for admin: patchHtmlFile
 
 ### 0.0.3 (2024-08-29)
-* (bluefox) initial release
+
+-   (bluefox) initial release
 
 ## License
 
