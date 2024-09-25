@@ -44,8 +44,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-
-### **WORK IN PROGRESS**
+### 1.1.0 (2024-09-25)
 
 -   (bluefox) optimized the pacht of HTML file
 -   (bluefox) Used `eslint-config` of ioBroker
