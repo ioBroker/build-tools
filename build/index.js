@@ -36,6 +36,7 @@ exports.ignoreWidgetFiles = ignoreWidgetFiles;
 exports.copyWidgetsFiles = copyWidgetsFiles;
 exports.patchHtmlFile = patchHtmlFile;
 const node_fs_1 = __importStar(require("node:fs"));
+const glob_1 = require("glob");
 const node_child_process_1 = require("node:child_process");
 const node_path_1 = require("node:path");
 /**
@@ -49,7 +50,7 @@ exceptions) {
     if ((0, node_fs_1.existsSync)(path)) {
         const files = (0, node_fs_1.readdirSync)(path);
         for (const file of files) {
-            const curPath = `${path}/${file}`;
+            const curPath = (0, node_path_1.join)(path, file);
             if (exceptions === null || exceptions === void 0 ? void 0 : exceptions.find(e => curPath.endsWith(e))) {
                 continue;
             }
@@ -85,7 +86,7 @@ dest,
 /** List of files to exclude */
 exclude) {
     const stats = (0, node_fs_1.existsSync)(src) ? (0, node_fs_1.statSync)(src) : null;
-    if (stats && stats.isDirectory()) {
+    if (stats === null || stats === void 0 ? void 0 : stats.isDirectory()) {
         !node_fs_1.default.existsSync(dest) && node_fs_1.default.mkdirSync(dest);
         node_fs_1.default.readdirSync(src).forEach(childItemName => {
             copyFolderRecursiveSync((0, node_path_1.join)(src, childItemName), (0, node_path_1.join)(dest, childItemName));
@@ -101,7 +102,7 @@ function readDirRecursive(path, _list) {
     if ((0, node_fs_1.existsSync)(path)) {
         const files = (0, node_fs_1.readdirSync)(path);
         files.forEach((file) => {
-            const fullPath = `${path}/${file}`;
+            const fullPath = (0, node_path_1.join)(path, file).replace(/\\/g, '/');
             if ((0, node_fs_1.statSync)(fullPath).isDirectory()) {
                 readDirRecursive(fullPath, _list);
             }
@@ -132,32 +133,15 @@ function collectFiles(patterns) {
             folderParts.pop();
             folder = folderParts.join('/');
         }
-        let files;
-        if (!folder) {
-            files = (0, node_fs_1.readdirSync)('.');
-        }
-        else {
-            files = readDirRecursive(folder);
-        }
-        // convert pattern "src-admin/build/static/js/*.js" to regex "src-admin/build/static/js/[^\.]+\.js"
-        if (_patterns[i].endsWith('*')) {
-            _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+');
-        }
-        else {
-            _patterns[i] = `${_patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+')}$`;
-        }
-        _patterns[i] = `^${_patterns[i]}`;
-        const regex = new RegExp(_patterns[i]);
+        const files = (0, glob_1.globSync)(_patterns[i]);
         for (let f = 0; f < files.length; f++) {
-            if (regex.test(files[f])) {
-                if (add) {
-                    result.push({ name: files[f], base: folder });
-                }
-                else {
-                    const pos = result.findIndex(it => it.name === files[f]);
-                    if (pos !== -1) {
-                        result.splice(pos, 1);
-                    }
+            if (add) {
+                result.push({ name: files[f], base: folder });
+            }
+            else {
+                const pos = result.findIndex(it => it.name === files[f]);
+                if (pos !== -1) {
+                    result.splice(pos, 1);
                 }
             }
         }
