@@ -33,7 +33,9 @@ The path could be relative or absolute.
 This function operates synchronously.
 The target folder itself will not be deleted.
 
-Usage: `deleteFoldersRecursive(__dirname + '/src');`
+Usage: `deleteFoldersRecursive(__dirname + '/src', ['.png']);`
+
+The files given in the second parameter will not be deleted.
 
 ### copyFolderRecursiveSync
 
