@@ -9,6 +9,7 @@ import fs, {
     unlinkSync,
     mkdirSync,
 } from 'node:fs';
+import { globSync } from 'glob';
 import { type ChildProcess, exec, fork, type IOType, type CommonSpawnOptions, execFile } from 'node:child_process';
 import { dirname, join } from 'node:path';
 
@@ -24,7 +25,7 @@ export function deleteFoldersRecursive(
     if (existsSync(path)) {
         const files = readdirSync(path);
         for (const file of files) {
-            const curPath = `${path}/${file}`;
+            const curPath = join(path, file);
             if (exceptions?.find(e => curPath.endsWith(e))) {
                 continue;
             }
@@ -60,7 +61,7 @@ export function copyFolderRecursiveSync(
     exclude?: string[],
 ): void {
     const stats = existsSync(src) ? statSync(src) : null;
-    if (stats && stats.isDirectory()) {
+    if (stats?.isDirectory()) {
         !fs.existsSync(dest) && fs.mkdirSync(dest);
         fs.readdirSync(src).forEach(childItemName => {
             copyFolderRecursiveSync(join(src, childItemName), join(dest, childItemName));
@@ -76,7 +77,7 @@ export function readDirRecursive(path: string, _list?: string[]): string[] {
     if (existsSync(path)) {
         const files = readdirSync(path);
         files.forEach((file: string) => {
-            const fullPath = `${path}/${file}`;
+            const fullPath = join(path, file).replace(/\\/g, '/');
             if (statSync(fullPath).isDirectory()) {
                 readDirRecursive(fullPath, _list);
             } else {
@@ -99,6 +100,7 @@ export function collectFiles(patterns: string[] | string): { name: string; base:
             add = false;
         }
         _patterns[i] = _patterns[i].replace(/\\/g, '/');
+
         let folder = _patterns[i].split('*')[0];
         if (folder[folder.length - 1] === '/') {
             folder = folder.substring(0, folder.length - 1);
@@ -107,34 +109,21 @@ export function collectFiles(patterns: string[] | string): { name: string; base:
             folderParts.pop();
             folder = folderParts.join('/');
         }
-        let files;
-        if (!folder) {
-            files = readdirSync('.');
-        } else {
-            files = readDirRecursive(folder);
-        }
-        // convert pattern "src-admin/build/static/js/*.js" to regex "src-admin/build/static/js/[^\.]+\.js"
-        if (_patterns[i].endsWith('*')) {
-            _patterns[i] = _patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+');
-        } else {
-            _patterns[i] = `${_patterns[i].replace(/\./g, '\\.').replace(/\*/g, '[^/]+')}$`;
-        }
-        _patterns[i] = `^${_patterns[i]}`;
 
-        const regex = new RegExp(_patterns[i]);
+        const files: string[] = globSync(_patterns[i]);
+
         for (let f = 0; f < files.length; f++) {
-            if (regex.test(files[f])) {
-                if (add) {
-                    result.push({ name: files[f], base: folder });
-                } else {
-                    const pos = result.findIndex(it => it.name === files[f]);
-                    if (pos !== -1) {
-                        result.splice(pos, 1);
-                    }
+            if (add) {
+                result.push({ name: files[f], base: folder });
+            } else {
+                const pos = result.findIndex(it => it.name === files[f]);
+                if (pos !== -1) {
+                    result.splice(pos, 1);
                 }
             }
         }
     }
+
     return result.map(it => ({ name: it.base ? it.name.substring(it.base.length + 1) : it.name, base: it.base }));
 }
 

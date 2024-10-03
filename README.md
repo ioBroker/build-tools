@@ -24,6 +24,158 @@ And use in `package.json` `scripts`:
 }
 ```
 
+## Tools
+
+### deleteFoldersRecursive
+
+Delete all files and folders in the given directory.
+The path could be relative or absolute.
+This function operates synchronously.
+The target folder itself will not be deleted.
+
+Usage: `deleteFoldersRecursive(__dirname + '/src');`
+
+### copyFolderRecursiveSync
+
+The `copyFolderRecursiveSync` function is used to copy all files and subdirectories from a source directory to a destination directory.
+This function operates synchronously, meaning it will block the execution of the program until the copying process is complete.
+It is useful for tasks that require a complete and immediate copy of a directory structure, such as backup operations or preparing files for deployment.
+
+The target directory will be created if not exists.
+The path could be relative or absolute.
+
+Usage: `copyFolderRecursiveSync(__dirname + '/src/build', __dirname + '/dist');`
+
+### readDirRecursive
+
+The readDirRecursive function is used to read all files and subdirectories within a given directory recursively.
+This function is useful for tasks that require processing or listing all files within a directory tree,
+such as file indexing, searching, or batch processing operations.
+
+The function operates synchronously.
+
+Usage:
+
+```js
+const files = readDirRecursive(__dirname + '/src');
+console.log(files);
+```
+
+Parameters:
+
+-   `dir`: The directory path to read. The path can be relative or absolute.
+    Returns:
+-   An array of file paths representing all files found within the specified directory and its subdirectories.
+
+### copyFiles
+
+The copyFiles function is used to copy specific files from a source directory to a destination directory. This function is useful for tasks that require selective copying of files based on certain patterns or criteria, such as preparing files for deployment or creating backups of specific files.
+
+Usage:
+
+```js
+const files = copyFiles(['src/build/**/*.js', '!src/build/**/*node_modules*.js'], __dirname + '/dist');
+console.log(files);
+```
+
+Parameters:
+
+-   `src`: Array of the patterns. Negative pattern starts with '!'. You can use the [glob](https://code.visualstudio.com/docs/editor/glob-patterns) patterns.
+-   `dest`: The destination directory path where files will be copied to. The path can be relative or absolute.
+
+### npmInstall
+The `npmInstall` function is used to install npm packages for a given project. This function is useful for automating the setup process of a project by programmatically running `npm install` to ensure all dependencies are installed.
+
+The function returns promise and it is not synchron.
+
+Usage:
+```js
+npmInstall(__dirname + '/src')
+    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+```
+
+### buildReact
+The buildReact function is used to build a React application.
+This function is useful for automating the build process of a React project,
+ensuring that all necessary steps are taken to compile and bundle the application for production.
+
+Usage for craco:
+```js
+buildReact(__dirname + '/src', { craco: true, rootDir: __dirname, ramSize: 7000 })
+    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+```
+
+Usage for vite:
+```js
+buildReact(__dirname + '/src', { vite: true, rootDir: __dirname })
+    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+```
+
+Usage for application with React scripts:
+```js
+buildReact(__dirname + '/src', { rootDir: __dirname })
+    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+```
+
+Possible options:
+- `rootDir` - sometimes the craco, vite, react-scripts are installed in the main directory and not in the src directory. This parameter says to function to look in the root directory for the executable script too. 
+- `ramSize` - adds the parameter `--max-old-space-size=X` (in MB) to the node parameter to increase the memory for build. `vis-2` or `admin` require it.
+- `tsc` - Executes `tsc` command in the target directory before build.
+- `craco` - Used `craco` for build
+- `vite` - Used `vite` for build
+
+### ignoreWidgetFiles
+Create a list of glob patterns for files that must be ignored by coping of the widget files. Used together with `copyWidgetFiles`.
+
+### copyWidgetsFiles
+Create a list of glob patterns for files, that must be copied for widgets.
+
+Usage:
+```js
+copyFiles([
+    __dirname + '/src/build/**/*.*',
+    copyWidgetsFiles(__dirname + '/src/build'),
+    ignoreWidgetFiles(__dirname + '/src/build')
+], __dirname + '/widgets/vis-2-widgets-adapter-name');
+```
+
+### patchHtmlFile
+Replace in the given HTML file the debug script with production one:
+```html
+<script>
+    const script = document.createElement('script');
+
+    window.registerSocketOnLoad = function (cb) {
+        window.socketLoadedHandler = cb;
+    };
+
+    script.onload = function () {
+        typeof window.socketLoadedHandler === 'function' && window.socketLoadedHandler();
+    };
+
+    script.onerror = function () {
+        console.error('Cannot load socket.io. Retry in 5 seconds');
+        setTimeout(function () {
+            window.location.reload();
+        }, 5000);
+    };
+
+    setTimeout(() => {
+        script.src = window.location.port === '3000' ? `${window.location.protocol}//${window.location.hostname}:8081/lib/js/socket.io.js` : './lib/js/socket.io.js';
+    }, 1000);
+
+    document.head.appendChild(script);
+</script>
+```
+
+will be replaced with
+```html
+<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>
+```
+
+Usage: 
+`patchHtmlFile('admin/index_m.html')`
+
 ## Converting i18n structure
 
 You can convert the old i18n structure i18n/lang/translations.json to the new structure i18n/lang.json with the following command:
@@ -44,6 +196,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+
 ### 1.1.1 (2024-10-03)
 
 -   (@GermanBluefox) Trying to fix a build script for craco
