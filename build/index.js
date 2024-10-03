@@ -297,7 +297,7 @@ options) {
         }
     }
     const reactPromise = new Promise((resolve, reject) => {
-        var _a, _b;
+        var _a, _b, _c, _d;
         const cpOptions = {
             stdio: 'pipe',
             cwd: src,
@@ -350,22 +350,37 @@ options) {
             reject(new Error(`Cannot find execution file: ${script}`));
         }
         else {
+            cpOptions.cwd = src;
             let child;
             if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec)) {
-                const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
-                console.log(`[${new Date().toISOString()}] Execute: "${cmd}" ${JSON.stringify(cpOptions)}`);
-                child = (0, node_child_process_1.exec)(cmd, cpOptions);
+                const cmd = 'node';
+                const args = [script, options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', 'build'].filter(a => a);
+                const child = (0, node_child_process_1.execFile)(cmd, args, cpOptions);
+                console.log(`[${new Date().toISOString()}] Execute: "${cmd} ${args.join(' ')}" ${JSON.stringify(cpOptions)}`);
+                (_a = child.stderr) === null || _a === void 0 ? void 0 : _a.pipe(process.stderr);
+                (_b = child.stdout) === null || _b === void 0 ? void 0 : _b.pipe(process.stdout);
+                child.on('exit', (code /* , signal */) => {
+                    // code 1 is a strange error that cannot be explained. Everything is done but error :(
+                    if (code && code !== 1) {
+                        reject(new Error(`Cannot install: ${code}`));
+                    }
+                    else {
+                        console.log(`"${cmd} in ${src} finished.`);
+                        // command succeeded
+                        resolve();
+                    }
+                });
             }
             else {
                 console.log(`[${new Date().toISOString()}] fork: "${script} build" ${JSON.stringify(cpOptions)}`);
                 child = (0, node_child_process_1.fork)(script, ['build'], cpOptions);
+                (_c = child === null || child === void 0 ? void 0 : child.stdout) === null || _c === void 0 ? void 0 : _c.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+                (_d = child === null || child === void 0 ? void 0 : child.stderr) === null || _d === void 0 ? void 0 : _d.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+                child.on('close', code => {
+                    console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
+                    code ? reject(new Error(`Exit code: ${code}`)) : resolve();
+                });
             }
-            (_a = child === null || child === void 0 ? void 0 : child.stdout) === null || _a === void 0 ? void 0 : _a.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
-            (_b = child === null || child === void 0 ? void 0 : child.stderr) === null || _b === void 0 ? void 0 : _b.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
-            child.on('close', code => {
-                console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
-                code ? reject(new Error(`Exit code: ${code}`)) : resolve();
-            });
         }
     });
     if (options === null || options === void 0 ? void 0 : options.tsc) {
