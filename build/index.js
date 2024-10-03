@@ -154,7 +154,7 @@ function collectFiles(patterns) {
             }
         }
     }
-    return result.map(it => ({ name: it.base ? it.name.substring(it.base.length + 1) : it.name, base: it.base }));
+    return result;
 }
 // Copy files by pattern to destination (sync function)
 function copyFiles(patterns, dest, options) {
