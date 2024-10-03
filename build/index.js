@@ -286,9 +286,9 @@ options) {
             stdio: 'pipe',
             cwd: src,
         };
-        cpOptions.env = {
-            DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
-        };
+        // cpOptions.env = {
+        //     DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
+        // };
         let script;
         if (options === null || options === void 0 ? void 0 : options.craco) {
             script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
@@ -336,7 +336,8 @@ options) {
         else {
             cpOptions.cwd = src;
             let child;
-            if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec)) {
+            if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec) || (options === null || options === void 0 ? void 0 : options.craco)) {
+                delete cpOptions.stdio;
                 const cmd = 'node';
                 const args = [script, options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', 'build'].filter(a => a);
                 const child = (0, node_child_process_1.execFile)(cmd, args, cpOptions);

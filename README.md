@@ -196,7 +196,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.2 (2024-10-03)
 
 -   (@GermanBluefox) Used glob for patterns
 
