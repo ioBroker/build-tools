@@ -114,6 +114,10 @@ export function collectFiles(patterns: string[] | string): { name: string; base:
 
         for (let f = 0; f < files.length; f++) {
             if (add) {
+                // ignore folders
+                if (statSync(join(folder, files[f])).isDirectory()) {
+                    continue;
+                }
                 result.push({ name: files[f], base: folder });
             } else {
                 const pos = result.findIndex(it => it.name === files[f]);
