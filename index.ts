@@ -9,14 +9,7 @@ import fs, {
     unlinkSync,
     mkdirSync,
 } from 'node:fs';
-import {
-    type ChildProcess,
-    exec,
-    fork,
-    type IOType,
-    type CommonSpawnOptions,
-    type ExecOptions,
-} from 'node:child_process';
+import { type ChildProcess, exec, fork, type IOType, type CommonSpawnOptions, execFile } from 'node:child_process';
 import { dirname, join } from 'node:path';
 
 /**
@@ -373,24 +366,42 @@ export function buildReact(
             console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
             reject(new Error(`Cannot find execution file: ${script}`));
         } else {
+            cpOptions.cwd = src;
             let child: ChildProcess;
             if (options?.ramSize || options?.exec) {
-                const cmd = `node ${script}${options.ramSize ? ` --max-old-space-size=${options.ramSize}` : ''} build`;
-                console.log(`[${new Date().toISOString()}] Execute: "${cmd}" ${JSON.stringify(cpOptions)}`);
-                child = exec(cmd, cpOptions as ExecOptions);
+                const cmd = 'node';
+                const args = [script, options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', 'build'].filter(
+                    a => a,
+                );
+                const child = execFile(cmd, args, cpOptions);
+                console.log(
+                    `[${new Date().toISOString()}] Execute: "${cmd} ${args.join(' ')}" ${JSON.stringify(cpOptions)}`,
+                );
+                child.stderr?.pipe(process.stderr);
+                child.stdout?.pipe(process.stdout);
+
+                child.on('exit', (code /* , signal */) => {
+                    // code 1 is a strange error that cannot be explained. Everything is done but error :(
+                    if (code && code !== 1) {
+                        reject(new Error(`Cannot install: ${code}`));
+                    } else {
+                        console.log(`"${cmd} in ${src} finished.`);
+                        // command succeeded
+                        resolve();
+                    }
+                });
             } else {
                 console.log(`[${new Date().toISOString()}] fork: "${script} build" ${JSON.stringify(cpOptions)}`);
                 child = fork(script, ['build'], cpOptions);
+                child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+                child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+                child.on('close', code => {
+                    console.log(
+                        `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
+                    );
+                    code ? reject(new Error(`Exit code: ${code}`)) : resolve();
+                });
             }
-            child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
-            child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
-
-            child.on('close', code => {
-                console.log(
-                    `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
-                );
-                code ? reject(new Error(`Exit code: ${code}`)) : resolve();
-            });
         }
     });
 

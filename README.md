@@ -44,54 +44,59 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Trying to fix a build script for craco
+
 ### 1.1.0 (2024-09-25)
 
--   (bluefox) optimized the pacht of HTML file
--   (bluefox) Used `eslint-config` of ioBroker
+-   (@GermanBluefox) optimized the pacht of HTML file
+-   (@GermanBluefox) Used `eslint-config` of ioBroker
 
 ### 1.0.9 (2024-09-21)
 
--   (bluefox) added `copyWidgetsFiles` and `ignoreWidgetFiles`
+-   (@GermanBluefox) added `copyWidgetsFiles` and `ignoreWidgetFiles`
 
 ### 1.0.7 (2024-09-21)
 
--   (bluefox) Added log outputs
+-   (@GermanBluefox) Added log outputs
 
 ### 1.0.4 (2024-09-20)
 
--   (bluefox) Added the build support for vite and typescript
+-   (@GermanBluefox) Added the build support for vite and typescript
 
 ### 1.0.3 (2024-09-19)
 
--   (bluefox) Added DANGEROUSLY_DISABLE_HOST_CHECK for buildReact
+-   (@GermanBluefox) Added DANGEROUSLY_DISABLE_HOST_CHECK for buildReact
 
 ### 1.0.2 (2024-09-10)
 
--   (bluefox) Added i18n convert script
+-   (@GermanBluefox) Added i18n convert script
 
 ### 1.0.1 (2024-09-08)
 
--   (bluefox) Added `copyFolderRecursiveSync`
+-   (@GermanBluefox) Added `copyFolderRecursiveSync`
 
 ### 1.0.0 (2024-09-08)
 
--   (bluefox) Catch the errors by deletion
+-   (@GermanBluefox) Catch the errors by deletion
 
 ### 0.1.1 (2024-09-04)
 
--   (bluefox) Export `collectFiles` method
+-   (@GermanBluefox) Export `collectFiles` method
 
 ### 0.1.0 (2024-09-04)
 
--   (bluefox) Added buildReact method
+-   (@GermanBluefox) Added buildReact method
 
 ### 0.0.6 (2024-08-29)
 
--   (bluefox) Added tools for admin: patchHtmlFile
+-   (@GermanBluefox) Added tools for admin: patchHtmlFile
 
 ### 0.0.3 (2024-08-29)
 
--   (bluefox) initial release
+-   (@GermanBluefox) initial release
 
 ## License
 
