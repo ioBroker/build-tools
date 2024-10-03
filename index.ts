@@ -113,6 +113,11 @@ export function collectFiles(patterns: string[] | string): { name: string; base:
         const files: string[] = globSync(_patterns[i]);
 
         for (let f = 0; f < files.length; f++) {
+            files[f] = files[f].replace(/\\/g, '/');
+            if (files[f].startsWith(folder)) {
+                files[f] = files[f].substring(folder.length + 1);
+            }
+
             if (add) {
                 // ignore folders
                 if (statSync(join(folder, files[f])).isDirectory()) {
