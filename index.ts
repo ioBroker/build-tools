@@ -308,9 +308,9 @@ export function buildReact(
             cwd: src,
         };
 
-        cpOptions.env = {
-            DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
-        };
+        // cpOptions.env = {
+        //     DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
+        // };
 
         let script;
         if (options?.craco) {
@@ -357,7 +357,8 @@ export function buildReact(
         } else {
             cpOptions.cwd = src;
             let child: ChildProcess;
-            if (options?.ramSize || options?.exec) {
+            if (options?.ramSize || options?.exec || options?.craco) {
+                delete cpOptions.stdio;
                 const cmd = 'node';
                 const args = [script, options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', 'build'].filter(
                     a => a,
