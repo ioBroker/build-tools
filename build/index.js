@@ -136,6 +136,10 @@ function collectFiles(patterns) {
         const files = (0, glob_1.globSync)(_patterns[i]);
         for (let f = 0; f < files.length; f++) {
             if (add) {
+                // ignore folders
+                if ((0, node_fs_1.statSync)((0, node_path_1.join)(folder, files[f])).isDirectory()) {
+                    continue;
+                }
                 result.push({ name: files[f], base: folder });
             }
             else {
