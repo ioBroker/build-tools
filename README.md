@@ -198,7 +198,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.6 (2024-10-07)
 
 -   (@GermanBluefox) Fixed coping of files
 
