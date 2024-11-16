@@ -393,17 +393,17 @@ options) {
     console.warn(`[${new Date().toISOString()}] buildCraco deprecated: Please use buildReact with craco option`);
     return buildReact(src, { craco: true, ...options });
 }
-function _patchHtmlFile(fileName) {
+function _patchHtmlFile(fileName, rootDir) {
     let changed = false;
     if (node_fs_1.default.existsSync(fileName)) {
         let code = node_fs_1.default.readFileSync(fileName).toString('utf8');
         // replace code
         if (code.match(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/)) {
-            code = code.replace(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
+            code = code.replace(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="${rootDir || '.'}/lib/js/socket.io.js"></script>`);
             changed = true;
         }
         if (code.match(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/)) {
-            code = code.replace(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`);
+            code = code.replace(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/, `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="${rootDir || '.'}/lib/js/socket.io.js"></script>`);
             changed = true;
         }
         if (changed) {
@@ -458,15 +458,20 @@ function copyWidgetsFiles(src) {
         `${src}build/static/js/*mui_system_colorManipulator*.*`,
     ];
 }
-// Patch an HTML file (async function)
-function patchHtmlFile(fileName) {
+/**
+ * Patch an HTML file (async function)
+ *
+ * @param fileName File name to be patched. Normally `${__dirname}/src-admin/build/index.html` or `${__dirname}/src/build/index.html`
+ * @param rootDir for admin. Admin has '.' and all other adapters '../..'
+ */
+function patchHtmlFile(fileName, rootDir) {
     return new Promise(resolve => {
         if (node_fs_1.default.existsSync(fileName)) {
-            resolve(_patchHtmlFile(fileName));
+            resolve(_patchHtmlFile(fileName, rootDir));
         }
         else {
             // wait till finished
-            setTimeout(() => resolve(_patchHtmlFile(fileName)), 2000);
+            setTimeout(() => resolve(_patchHtmlFile(fileName, rootDir)), 2000);
         }
     });
 }

@@ -25,6 +25,6 @@ export default [
         rules: {},
     },
     {
-        ignores: ['build/*', 'tasks.js'],
+        ignores: ['build/*', 'tasks.js', 'test/*'],
     },
 ];

@@ -75,4 +75,10 @@ options?: {
 }): Promise<void>;
 export declare function ignoreWidgetFiles(src: string, doNotIgnoreMap?: boolean): string[];
 export declare function copyWidgetsFiles(src: string): string[];
-export declare function patchHtmlFile(fileName: string): Promise<boolean>;
+/**
+ * Patch an HTML file (async function)
+ *
+ * @param fileName File name to be patched. Normally `${__dirname}/src-admin/build/index.html` or `${__dirname}/src/build/index.html`
+ * @param rootDir for admin. Admin has '.' and all other adapters '../..'
+ */
+export declare function patchHtmlFile(fileName: string, rootDir?: string): Promise<boolean>;

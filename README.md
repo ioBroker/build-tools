@@ -86,63 +86,80 @@ Parameters:
 -   `dest`: The destination directory path where files will be copied to. The path can be relative or absolute.
 
 ### npmInstall
+
 The `npmInstall` function is used to install npm packages for a given project. This function is useful for automating the setup process of a project by programmatically running `npm install` to ensure all dependencies are installed.
 
 The function returns promise and it is not synchron.
 
 Usage:
+
 ```js
-npmInstall(__dirname + '/src')
-    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+npmInstall(__dirname + '/src').catch(e => console.error('Cannot install packages: ' + e.toString()));
 ```
 
 ### buildReact
+
 The buildReact function is used to build a React application.
 This function is useful for automating the build process of a React project,
 ensuring that all necessary steps are taken to compile and bundle the application for production.
 
 Usage for craco:
+
 ```js
-buildReact(__dirname + '/src', { craco: true, rootDir: __dirname, ramSize: 7000 })
-    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+buildReact(__dirname + '/src', { craco: true, rootDir: __dirname, ramSize: 7000 }).catch(e =>
+    console.error('Cannot install packages: ' + e.toString()),
+);
 ```
 
 Usage for vite:
+
 ```js
-buildReact(__dirname + '/src', { vite: true, rootDir: __dirname })
-    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+buildReact(__dirname + '/src', { vite: true, rootDir: __dirname }).catch(e =>
+    console.error('Cannot install packages: ' + e.toString()),
+);
 ```
 
 Usage for application with React scripts:
+
 ```js
-buildReact(__dirname + '/src', { rootDir: __dirname })
-    .catch(e => console.error('Cannot install packages: ' + e.toString()));
+buildReact(__dirname + '/src', { rootDir: __dirname }).catch(e =>
+    console.error('Cannot install packages: ' + e.toString()),
+);
 ```
 
 Possible options:
-- `rootDir` - sometimes the craco, vite, react-scripts are installed in the main directory and not in the src directory. This parameter says to function to look in the root directory for the executable script too. 
-- `ramSize` - adds the parameter `--max-old-space-size=X` (in MB) to the node parameter to increase the memory for build. `vis-2` or `admin` require it.
-- `tsc` - Executes `tsc` command in the target directory before build.
-- `craco` - Used `craco` for build
-- `vite` - Used `vite` for build
+
+-   `rootDir` - sometimes the craco, vite, react-scripts are installed in the main directory and not in the src directory. This parameter says to function to look in the root directory for the executable script too.
+-   `ramSize` - adds the parameter `--max-old-space-size=X` (in MB) to the node parameter to increase the memory for build. `vis-2` or `admin` require it.
+-   `tsc` - Executes `tsc` command in the target directory before build.
+-   `craco` - Used `craco` for build
+-   `vite` - Used `vite` for build
 
 ### ignoreWidgetFiles
+
 Create a list of glob patterns for files that must be ignored by coping of the widget files. Used together with `copyWidgetFiles`.
 
 ### copyWidgetsFiles
+
 Create a list of glob patterns for files, that must be copied for widgets.
 
 Usage:
+
 ```js
-copyFiles([
-    __dirname + '/src/build/**/*.*',
-    copyWidgetsFiles(__dirname + '/src/build'),
-    ignoreWidgetFiles(__dirname + '/src/build')
-], __dirname + '/widgets/vis-2-widgets-adapter-name');
+copyFiles(
+    [
+        __dirname + '/src/build/**/*.*',
+        copyWidgetsFiles(__dirname + '/src/build'),
+        ignoreWidgetFiles(__dirname + '/src/build'),
+    ],
+    __dirname + '/widgets/vis-2-widgets-adapter-name',
+);
 ```
 
 ### patchHtmlFile
+
 Replace in the given HTML file the debug script with production one:
+
 ```html
 <script>
     const script = document.createElement('script');
@@ -163,7 +180,10 @@ Replace in the given HTML file the debug script with production one:
     };
 
     setTimeout(() => {
-        script.src = window.location.port === '3000' ? `${window.location.protocol}//${window.location.hostname}:8081/lib/js/socket.io.js` : './lib/js/socket.io.js';
+        script.src =
+            window.location.port === '3000'
+                ? `${window.location.protocol}//${window.location.hostname}:8081/lib/js/socket.io.js`
+                : './lib/js/socket.io.js';
     }, 1000);
 
     document.head.appendChild(script);
@@ -171,11 +191,16 @@ Replace in the given HTML file the debug script with production one:
 ```
 
 will be replaced with
+
 ```html
-<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>
+<script
+    type="text/javascript"
+    onerror="setTimeout(function(){window.location.reload()}, 5000)"
+    src="./lib/js/socket.io.js"
+></script>
 ```
 
-Usage: 
+Usage:
 `patchHtmlFile('admin/index_m.html')`
 
 ## Converting i18n structure
@@ -198,6 +223,11 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Added parameter for socket.io lib in `patchHtmlFile` method
+
 ### 2.0.6 (2024-10-07)
 
 -   (@GermanBluefox) Fixed coping of files

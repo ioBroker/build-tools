@@ -431,7 +431,7 @@ export function buildCraco(
     return buildReact(src, { craco: true, ...options });
 }
 
-function _patchHtmlFile(fileName: string): boolean {
+function _patchHtmlFile(fileName: string, rootDir?: string): boolean {
     let changed = false;
     if (fs.existsSync(fileName)) {
         let code = fs.readFileSync(fileName).toString('utf8');
@@ -439,14 +439,14 @@ function _patchHtmlFile(fileName: string): boolean {
         if (code.match(/<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/)) {
             code = code.replace(
                 /<script>\n?\s*const script\s?=\s?document[^<]+<\/script>/,
-                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="${rootDir || '.'}/lib/js/socket.io.js"></script>`,
             );
             changed = true;
         }
         if (code.match(/<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/)) {
             code = code.replace(
                 /<script>\n?\s*var script\s?=\s?document[^<]+<\/script>/,
-                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="./lib/js/socket.io.js"></script>`,
+                `<script type="text/javascript" onerror="setTimeout(function(){window.location.reload()}, 5000)" src="${rootDir || '.'}/lib/js/socket.io.js"></script>`,
             );
             changed = true;
         }
@@ -507,14 +507,19 @@ export function copyWidgetsFiles(src: string): string[] {
     ];
 }
 
-// Patch an HTML file (async function)
-export function patchHtmlFile(fileName: string): Promise<boolean> {
+/**
+ * Patch an HTML file (async function)
+ *
+ * @param fileName File name to be patched. Normally `${__dirname}/src-admin/build/index.html` or `${__dirname}/src/build/index.html`
+ * @param rootDir for admin. Admin has '.' and all other adapters '../..'
+ */
+export function patchHtmlFile(fileName: string, rootDir?: string): Promise<boolean> {
     return new Promise(resolve => {
         if (fs.existsSync(fileName)) {
-            resolve(_patchHtmlFile(fileName));
+            resolve(_patchHtmlFile(fileName, rootDir));
         } else {
             // wait till finished
-            setTimeout(() => resolve(_patchHtmlFile(fileName)), 2000);
+            setTimeout(() => resolve(_patchHtmlFile(fileName, rootDir)), 2000);
         }
     });
 }
