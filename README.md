@@ -223,6 +223,10 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Treat exit code 1 as error
+
 ### 2.0.8 (2024-11-25)
 
 -   (@GermanBluefox) Added parameter to copyFiles/process function. It is possible to filter files with it

@@ -299,6 +299,8 @@ export function buildReact(
         vite?: boolean;
         /** execute tsc before building ReactJS */
         tsc?: boolean;
+        /** ignore return code 1 as error */
+        ignoreCode1?: boolean;
     },
 ): Promise<void> {
     if (src.endsWith('/')) {
@@ -393,8 +395,14 @@ export function buildReact(
 
                 child.on('exit', (code /* , signal */) => {
                     // code 1 is a strange error that cannot be explained. Everything is done but error :(
-                    if (code && code !== 1) {
-                        reject(new Error(`Cannot install: ${code}`));
+                    if (code) {
+                        if (code === 1 && options.ignoreCode1) {
+                            console.log(`"${cmd} in ${src} finished.`);
+                            // command succeeded
+                            resolve();
+                        } else {
+                            reject(new Error(`Cannot build: ${code}`));
+                        }
                     } else {
                         console.log(`"${cmd} in ${src} finished.`);
                         // command succeeded
@@ -410,7 +418,16 @@ export function buildReact(
                     console.log(
                         `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
                     );
-                    code ? reject(new Error(`Exit code: ${code}`)) : resolve();
+                    if (code) {
+                        if (code === 1 && options?.ignoreCode1) {
+                            resolve();
+                        } else {
+                            reject(new Error(`Cannot build: ${code}`));
+                        }
+                    } else {
+                        // command succeeded
+                        resolve();
+                    }
                 });
             }
         }
