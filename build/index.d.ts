@@ -59,6 +59,8 @@ options?: {
     vite?: boolean;
     /** execute tsc before building ReactJS */
     tsc?: boolean;
+    /** ignore return code 1 as error */
+    ignoreCode1?: boolean;
 }): Promise<void>;
 /** @deprecated use buildReact with the craco flag */
 export declare function buildCraco(

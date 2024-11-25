@@ -374,8 +374,15 @@ options) {
                 (_b = child.stdout) === null || _b === void 0 ? void 0 : _b.pipe(process.stdout);
                 child.on('exit', (code /* , signal */) => {
                     // code 1 is a strange error that cannot be explained. Everything is done but error :(
-                    if (code && code !== 1) {
-                        reject(new Error(`Cannot install: ${code}`));
+                    if (code) {
+                        if (code === 1 && options.ignoreCode1) {
+                            console.log(`"${cmd} in ${src} finished.`);
+                            // command succeeded
+                            resolve();
+                        }
+                        else {
+                            reject(new Error(`Cannot build: ${code}`));
+                        }
                     }
                     else {
                         console.log(`"${cmd} in ${src} finished.`);
@@ -391,7 +398,18 @@ options) {
                 (_d = child === null || child === void 0 ? void 0 : child.stderr) === null || _d === void 0 ? void 0 : _d.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
                 child.on('close', code => {
                     console.log(`[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`);
-                    code ? reject(new Error(`Exit code: ${code}`)) : resolve();
+                    if (code) {
+                        if (code === 1 && (options === null || options === void 0 ? void 0 : options.ignoreCode1)) {
+                            resolve();
+                        }
+                        else {
+                            reject(new Error(`Cannot build: ${code}`));
+                        }
+                    }
+                    else {
+                        // command succeeded
+                        resolve();
+                    }
                 });
             }
         }
