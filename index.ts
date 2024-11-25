@@ -144,7 +144,7 @@ export function copyFiles(
     patterns: string[] | string,
     dest: string,
     options?: {
-        process?: (fileData: string) => string;
+        process?: (fileData: string, fileName: string) => string | null | undefined | false;
         replace?: { find: string | RegExp; text: string }[];
     },
 ): void {
@@ -166,7 +166,16 @@ export function copyFiles(
                 }
             }
             if (options.process) {
-                data = options.process(data);
+                const newData = options.process(
+                    data,
+                    files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name,
+                );
+                // if null, skip this fila
+                if (newData === null || newData === false) {
+                    continue;
+                } else if (newData !== undefined) {
+                    data = newData;
+                }
             }
             writeFileSync(destName, data);
         } else {

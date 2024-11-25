@@ -223,6 +223,10 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Added parameter to copyFiles/process function. It is possible to filter files with it
+
 ### 2.0.7 (2024-11-16)
 
 -   (@GermanBluefox) Added parameter for socket.io lib in `patchHtmlFile` method
