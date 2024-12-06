@@ -180,8 +180,9 @@ function copyFiles(patterns, dest, options) {
         }
         console.log(`[${new Date().toISOString()}] Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
-            let data = (0, node_fs_1.readFileSync)(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString('utf8');
+            let data = (0, node_fs_1.readFileSync)(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name);
             if (options.replace) {
+                data = data.toString('utf8');
                 for (let r = 0; r < options.replace.length; r++) {
                     data = data.replace(options.replace[r].find, options.replace[r].text);
                 }

@@ -22,7 +22,7 @@ export declare function collectFiles(patterns: string[] | string): {
     base: string;
 }[];
 export declare function copyFiles(patterns: string[] | string, dest: string, options?: {
-    process?: (fileData: string, fileName: string) => string | null | undefined | false;
+    process?: (fileData: Buffer | string, fileName: string) => string | null | undefined | false;
     replace?: {
         find: string | RegExp;
         text: string;
