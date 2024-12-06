@@ -144,7 +144,7 @@ export function copyFiles(
     patterns: string[] | string,
     dest: string,
     options?: {
-        process?: (fileData: string, fileName: string) => string | null | undefined | false;
+        process?: (fileData: Buffer | string, fileName: string) => string | null | undefined | false;
         replace?: { find: string | RegExp; text: string }[];
     },
 ): void {
@@ -157,10 +157,11 @@ export function copyFiles(
         }
         console.log(`[${new Date().toISOString()}] Copy "${files[f].base}/${files[f].name}" to "${destName}"`);
         if (options) {
-            let data = readFileSync(files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name).toString(
-                'utf8',
+            let data: Buffer | string = readFileSync(
+                files[f].base ? `${files[f].base}/${files[f].name}` : files[f].name,
             );
             if (options.replace) {
+                data = data.toString('utf8');
                 for (let r = 0; r < options.replace.length; r++) {
                     data = data.replace(options.replace[r].find, options.replace[r].text);
                 }

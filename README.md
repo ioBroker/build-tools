@@ -223,6 +223,10 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Do not convert to string the files by processing them
+
 ### 2.0.9 (2024-11-25)
 
 -   (@GermanBluefox) Treat exit code 1 as error
