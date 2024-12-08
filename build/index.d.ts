@@ -61,6 +61,8 @@ options?: {
     tsc?: boolean;
     /** ignore return code 1 as error */
     ignoreCode1?: boolean;
+    /** Normally process.exit will be called. With this flag only promise will be rejected */
+    ignoreErrors?: boolean;
 }): Promise<void>;
 /** @deprecated use buildReact with the craco flag */
 export declare function buildCraco(

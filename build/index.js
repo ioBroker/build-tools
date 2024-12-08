@@ -382,7 +382,13 @@ options) {
                             resolve();
                         }
                         else {
-                            reject(new Error(`Cannot build: ${code}`));
+                            if (options.ignoreErrors) {
+                                reject(new Error(`Cannot build: ${code}`));
+                            }
+                            else {
+                                console.error(`Cannot build: ${code}`);
+                                process.exit(2);
+                            }
                         }
                     }
                     else {
@@ -404,7 +410,13 @@ options) {
                             resolve();
                         }
                         else {
-                            reject(new Error(`Cannot build: ${code}`));
+                            if (options === null || options === void 0 ? void 0 : options.ignoreErrors) {
+                                reject(new Error(`Cannot build: ${code}`));
+                            }
+                            else {
+                                console.error(`Cannot build: ${code}`);
+                                process.exit(2);
+                            }
                         }
                     }
                     else {
