@@ -302,6 +302,8 @@ export function buildReact(
         tsc?: boolean;
         /** ignore return code 1 as error */
         ignoreCode1?: boolean;
+        /** Normally process.exit will be called. With this flag only promise will be rejected */
+        ignoreErrors?: boolean;
     },
 ): Promise<void> {
     if (src.endsWith('/')) {
@@ -402,7 +404,12 @@ export function buildReact(
                             // command succeeded
                             resolve();
                         } else {
-                            reject(new Error(`Cannot build: ${code}`));
+                            if (options.ignoreErrors) {
+                                reject(new Error(`Cannot build: ${code}`));
+                            } else {
+                                console.error(`Cannot build: ${code}`);
+                                process.exit(2);
+                            }
                         }
                     } else {
                         console.log(`"${cmd} in ${src} finished.`);
@@ -423,7 +430,12 @@ export function buildReact(
                         if (code === 1 && options?.ignoreCode1) {
                             resolve();
                         } else {
-                            reject(new Error(`Cannot build: ${code}`));
+                            if (options?.ignoreErrors) {
+                                reject(new Error(`Cannot build: ${code}`));
+                            } else {
+                                console.error(`Cannot build: ${code}`);
+                                process.exit(2);
+                            }
                         }
                     } else {
                         // command succeeded

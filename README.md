@@ -223,6 +223,10 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Exited from process with error code 2 if React cannot be built
+
 ### 2.0.10 (2024-12-06)
 
 -   (@GermanBluefox) Do not convert to string the files by processing them
