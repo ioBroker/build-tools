@@ -223,7 +223,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.12 (2024-12-11)
 
 -   (@GermanBluefox) Added clean install options for npmInstall
 

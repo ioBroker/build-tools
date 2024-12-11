@@ -35,6 +35,8 @@ src: string,
 options?: {
     /** Set to false if you want to execute without `--force` flag */
     force?: boolean;
+    /** Execute npm install with "ci" */
+    clean?: boolean;
 }): Promise<void>;
 export declare function tsc(
 /** React directory to build */
