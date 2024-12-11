@@ -223,6 +223,10 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Added clean install options for npmInstall
+
 ### 2.0.11 (2024-12-08)
 
 -   (@GermanBluefox) Exited from process with error code 2 if React cannot be built
