@@ -223,7 +223,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.13 (2024-12-29)
 
 -   (@GermanBluefox) downgrade glob for node 18
 
