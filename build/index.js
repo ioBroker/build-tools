@@ -218,7 +218,7 @@ options) {
         // Install node modules
         const cwd = src.replace(/\\/g, '/');
         const start = Date.now();
-        const cmd = `npm ${(options === null || options === void 0 ? void 0 : options.clean) ? 'ci' : 'install'}${(options === null || options === void 0 ? void 0 : options.force) !== false ? ' --force' : ''}`;
+        const cmd = `npm ${(options === null || options === void 0 ? void 0 : options.clean) ? 'ci' : 'install'}${(options === null || options === void 0 ? void 0 : options.force) !== false ? ' --force' : ''}${(options === null || options === void 0 ? void 0 : options.omitDev) ? ' --omit=dev' : ''}`;
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
         console.log(`[${new Date().toISOString()}] executing: "${cmd}" in "${cwd}"`);

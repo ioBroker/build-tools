@@ -37,6 +37,7 @@ options?: {
     force?: boolean;
     /** Execute npm install with "ci" */
     clean?: boolean;
+    omitDev?: boolean;
 }): Promise<void>;
 export declare function tsc(
 /** React directory to build */

@@ -223,7 +223,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 2.0.14 (2025-01-05)
 
 -   (@GermanBluefox) Added `--omit=dev` to `npmInstall`
 
