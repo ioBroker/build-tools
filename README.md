@@ -223,17 +223,21 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Added `--omit=dev` to `npmInstall`
+
 ### 2.0.13 (2024-12-29)
 
 -   (@GermanBluefox) downgrade glob for node 18
 
 ### 2.0.12 (2024-12-11)
 
--   (@GermanBluefox) Added clean install options for npmInstall
+-   (@GermanBluefox) Added clean installation options for npmInstall
 
 ### 2.0.11 (2024-12-08)
 
--   (@GermanBluefox) Exited from process with error code 2 if React cannot be built
+-   (@GermanBluefox) Exited from a process with error code 2 if React cannot be built
 
 ### 2.0.10 (2024-12-06)
 

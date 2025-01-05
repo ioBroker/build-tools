@@ -195,6 +195,7 @@ export function npmInstall(
         force?: boolean;
         /** Execute npm install with "ci" */
         clean?: boolean;
+        omitDev?: boolean;
     },
 ): Promise<void> {
     if (src.endsWith('/')) {
@@ -205,7 +206,7 @@ export function npmInstall(
         const cwd = src.replace(/\\/g, '/');
         const start = Date.now();
 
-        const cmd = `npm ${options?.clean ? 'ci' : 'install'}${options?.force !== false ? ' --force' : ''}`;
+        const cmd = `npm ${options?.clean ? 'ci' : 'install'}${options?.force !== false ? ' --force' : ''}${options?.omitDev ? ' --omit=dev' : ''}`;
 
         // System call used for update of js-controller itself,
         // because during an installation the npm packet will be deleted too, but some files must be loaded even during the install process.
