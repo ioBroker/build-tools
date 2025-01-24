@@ -368,7 +368,7 @@ options) {
             if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec) || (options === null || options === void 0 ? void 0 : options.craco)) {
                 delete cpOptions.stdio;
                 const cmd = 'node';
-                const args = [script, options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', 'build'].filter(a => a);
+                const args = [options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', script, 'build'].filter(a => a);
                 const child = (0, node_child_process_1.execFile)(cmd, args, cpOptions);
                 console.log(`[${new Date().toISOString()}] Execute: "${cmd} ${args.join(' ')}" ${JSON.stringify(cpOptions)}`);
                 (_a = child.stderr) === null || _a === void 0 ? void 0 : _a.pipe(process.stderr);
