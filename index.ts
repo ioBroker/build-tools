@@ -389,7 +389,7 @@ export function buildReact(
             if (options?.ramSize || options?.exec || options?.craco) {
                 delete cpOptions.stdio;
                 const cmd = 'node';
-                const args = [script, options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', 'build'].filter(
+                const args = [options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', script, 'build'].filter(
                     a => a,
                 );
                 const child = execFile(cmd, args, cpOptions);
