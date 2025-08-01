@@ -24,7 +24,7 @@
     "@alcalzone/release-script-plugin-license": "^3.7.0",
     "@iobroker/eslint-config": "^1.0.0",
     "@types/node": "^22.15.29",
-    "typescript": "^5.8.3"
+    "typescript": "^5.9.2"
   },
   "main": "build/index.js",
   "files": [
