@@ -223,6 +223,10 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+-   (@GermanBluefox) Packages updated, but minimal NodeJS version is now 20
+
 ### 2.0.15 (2025-01-24)
 
 -   (@GermanBluefox) Corrected vite compile with ramSize option
