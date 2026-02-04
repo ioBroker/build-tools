@@ -223,7 +223,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### **WORK IN PROGRESS**
+### 3.0.0 (2026-02-04)
 
 -   (@GermanBluefox) Packages updated, but minimal NodeJS version is now 20
 
