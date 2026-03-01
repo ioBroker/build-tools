@@ -17,7 +17,7 @@
     "url": "https://github.com/ioBroker/build-tools"
   },
   "dependencies": {
-    "glob": "^13.0.1"
+    "glob": "^13.0.6"
   },
   "devDependencies": {
     "@alcalzone/release-script": "^5.0.0",
