@@ -10,7 +10,7 @@ import fs, {
     mkdirSync,
 } from 'node:fs';
 import { globSync } from 'glob';
-import { type ChildProcess, exec, fork, type IOType, type CommonSpawnOptions, execFile } from 'node:child_process';
+import { type ChildProcess, exec, fork, type CommonSpawnOptions, execFile } from 'node:child_process';
 import { dirname, join } from 'node:path';
 
 /**
