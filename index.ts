@@ -250,7 +250,7 @@ export function tsc(
 
     return new Promise((resolve, reject) => {
         const cpOptions: CommonSpawnOptions = {
-            stdio: 'pipe' as IOType,
+            stdio: 'pipe',
             cwd: src,
         };
         const start = Date.now();
@@ -334,7 +334,7 @@ export function buildReact(
     const runReact = (): Promise<void> =>
         new Promise((resolve, reject) => {
             const cpOptions: CommonSpawnOptions = {
-                stdio: 'pipe' as IOType,
+                stdio: 'pipe',
                 cwd: src,
             };
 

@@ -38,7 +38,7 @@
     "release-minor": "release-script minor --yes --no-update-lockfile",
     "release-major": "release-script major --yes --no-update-lockfile",
     "update-packages": "npx -y npm-check-updates --upgrade",
-    "lint": "eslint -c eslint.config.mjs",
+    "lint": "eslint -c eslint.config.mjs --debug",
     "test:integration": "cd test && node collectFiles",
     "test": "npm run test:integration",
     "npm": "npm i -f"

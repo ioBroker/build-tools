@@ -223,7 +223,7 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
-### 3.0.2 (2026-09-04)
+### **WORK IN PROGRESS**
 
 - (@GermanBluefox) Small change in the buildReact function to support vite build
 
