@@ -331,128 +331,135 @@ export function buildReact(
             writeFileSync(`${src}/package.json`, JSON.stringify(data, null, 4));
         }
     }
-    const reactPromise: Promise<void> = new Promise((resolve, reject) => {
-        const cpOptions: CommonSpawnOptions = {
-            stdio: 'pipe' as IOType,
-            cwd: src,
-        };
+    const runReact = (): Promise<void> =>
+        new Promise((resolve, reject) => {
+            const cpOptions: CommonSpawnOptions = {
+                stdio: 'pipe' as IOType,
+                cwd: src,
+            };
 
-        // cpOptions.env = {
-        //     DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
-        // };
+            // cpOptions.env = {
+            //     DANGEROUSLY_DISABLE_HOST_CHECK: 'true',
+            // };
 
-        let script;
-        if (options?.craco) {
-            script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
-            if (rootDir && !existsSync(script)) {
-                script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
-                if (!existsSync(script)) {
-                    // admin could have another structure
-                    script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+            let script;
+            if (options?.craco) {
+                script = `${src}/node_modules/@craco/craco/dist/bin/craco.js`;
+                if (rootDir && !existsSync(script)) {
+                    script = `${rootDir}/node_modules/@craco/craco/dist/bin/craco.js`;
                     if (!existsSync(script)) {
-                        script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                        // admin could have another structure
+                        script = `${rootDir}/../node_modules/@craco/craco/dist/bin/craco.js`;
+                        if (!existsSync(script)) {
+                            script = `${rootDir}/../../node_modules/@craco/craco/dist/bin/craco.js`;
+                        }
+                    }
+                }
+            } else if (options?.vite) {
+                script = `${src}/node_modules/vite/bin/vite.js`;
+                if (rootDir && !existsSync(script)) {
+                    script = `${rootDir}/node_modules/vite/bin/vite.js`;
+                    if (!existsSync(script)) {
+                        // admin could have another structure
+                        script = `${rootDir}/../node_modules/vite/bin/vite.js`;
+                        if (!existsSync(script)) {
+                            script = `${rootDir}/../../node_modules/vite/bin/vite.js`;
+                        }
+                    }
+                }
+            } else {
+                script = `${src}/node_modules/react-scripts/scripts/build.js`;
+                if (rootDir && !existsSync(script)) {
+                    script = `${rootDir}/node_modules/react-scripts/scripts/build.js`;
+                    if (!existsSync(script)) {
+                        // admin could have another structure
+                        script = `${rootDir}/../node_modules/react-scripts/scripts/build.js`;
+                        if (!existsSync(script)) {
+                            script = `${rootDir}/../../node_modules/react-scripts/scripts/build.js`;
+                        }
                     }
                 }
             }
-        } else if (options?.vite) {
-            script = `${src}/node_modules/vite/bin/vite.js`;
-            if (rootDir && !existsSync(script)) {
-                script = `${rootDir}/node_modules/vite/bin/vite.js`;
-                if (!existsSync(script)) {
-                    // admin could have another structure
-                    script = `${rootDir}/../node_modules/vite/bin/vite.js`;
-                    if (!existsSync(script)) {
-                        script = `${rootDir}/../../node_modules/vite/bin/vite.js`;
-                    }
-                }
-            }
-        } else {
-            script = `${src}/node_modules/react-scripts/scripts/build.js`;
-            if (rootDir && !existsSync(script)) {
-                script = `${rootDir}/node_modules/react-scripts/scripts/build.js`;
-                if (!existsSync(script)) {
-                    // admin could have another structure
-                    script = `${rootDir}/../node_modules/react-scripts/scripts/build.js`;
-                    if (!existsSync(script)) {
-                        script = `${rootDir}/../../node_modules/react-scripts/scripts/build.js`;
-                    }
-                }
-            }
-        }
 
-        if (!existsSync(script)) {
-            console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
-            reject(new Error(`Cannot find execution file: ${script}`));
-        } else {
-            cpOptions.cwd = src;
-            let child: ChildProcess;
-            if (options?.ramSize || options?.exec || options?.craco) {
-                delete cpOptions.stdio;
-                const cmd = 'node';
-                const args = [options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', script, 'build'].filter(
-                    a => a,
-                );
-                const child = execFile(cmd, args, cpOptions);
-                console.log(
-                    `[${new Date().toISOString()}] Execute: "${cmd} ${args.join(' ')}" ${JSON.stringify(cpOptions)}`,
-                );
-                child.stderr?.pipe(process.stderr);
-                child.stdout?.pipe(process.stdout);
+            if (!existsSync(script)) {
+                console.error(`[${new Date().toISOString()}] Cannot find execution file: ${script}`);
+                reject(new Error(`Cannot find execution file: ${script}`));
+            } else {
+                cpOptions.cwd = src;
+                let child: ChildProcess;
+                if (options?.ramSize || options?.exec || options?.craco) {
+                    delete cpOptions.stdio;
+                    const cmd = 'node';
+                    const args = [
+                        options.ramSize ? `--max-old-space-size=${options.ramSize}` : '',
+                        script,
+                        'build',
+                    ].filter(a => a);
+                    const child = execFile(cmd, args, cpOptions);
+                    console.log(
+                        `[${new Date().toISOString()}] Execute: "${cmd} ${args.join(' ')}" ${JSON.stringify(cpOptions)}`,
+                    );
+                    child.stderr?.pipe(process.stderr);
+                    child.stdout?.pipe(process.stdout);
 
-                child.on('exit', (code /* , signal */) => {
-                    // code 1 is a strange error that cannot be explained. Everything is done but error :(
-                    if (code) {
-                        if (code === 1 && options.ignoreCode1) {
+                    child.on('exit', (code /* , signal */) => {
+                        // code 1 is a strange error that cannot be explained. Everything is done but error :(
+                        if (code) {
+                            if (code === 1 && options.ignoreCode1) {
+                                console.log(`"${cmd} in ${src} finished.`);
+                                // command succeeded
+                                resolve();
+                            } else {
+                                if (options.ignoreErrors) {
+                                    reject(new Error(`Cannot build: ${code}`));
+                                } else {
+                                    console.error(`Cannot build: ${code}`);
+                                    process.exit(2);
+                                }
+                            }
+                        } else {
                             console.log(`"${cmd} in ${src} finished.`);
                             // command succeeded
                             resolve();
-                        } else {
-                            if (options.ignoreErrors) {
-                                reject(new Error(`Cannot build: ${code}`));
-                            } else {
-                                console.error(`Cannot build: ${code}`);
-                                process.exit(2);
-                            }
                         }
-                    } else {
-                        console.log(`"${cmd} in ${src} finished.`);
-                        // command succeeded
-                        resolve();
-                    }
-                });
-            } else {
-                console.log(`[${new Date().toISOString()}] fork: "${script} build" ${JSON.stringify(cpOptions)}`);
-                child = fork(script, ['build'], cpOptions);
-                child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
-                child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
-                child.on('close', code => {
-                    console.log(
-                        `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
-                    );
-                    if (code) {
-                        if (code === 1 && options?.ignoreCode1) {
+                    });
+                } else {
+                    console.log(`[${new Date().toISOString()}] fork: "${script} build" ${JSON.stringify(cpOptions)}`);
+                    child = fork(script, ['build'], cpOptions);
+                    child?.stdout?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+                    child?.stderr?.on('data', data => console.log(`[${new Date().toISOString()}] ${data.toString()}`));
+                    child.on('close', code => {
+                        console.log(
+                            `[${new Date().toISOString()}] child process exited with code ${code} after ${Date.now() - start}ms.`,
+                        );
+                        if (code) {
+                            if (code === 1 && options?.ignoreCode1) {
+                                resolve();
+                            } else {
+                                if (options?.ignoreErrors) {
+                                    reject(new Error(`Cannot build: ${code}`));
+                                } else {
+                                    console.error(`Cannot build: ${code}`);
+                                    process.exit(2);
+                                }
+                            }
+                        } else {
+                            // command succeeded
                             resolve();
-                        } else {
-                            if (options?.ignoreErrors) {
-                                reject(new Error(`Cannot build: ${code}`));
-                            } else {
-                                console.error(`Cannot build: ${code}`);
-                                process.exit(2);
-                            }
                         }
-                    } else {
-                        // command succeeded
-                        resolve();
-                    }
-                });
+                    });
+                }
             }
-        }
-    });
+        });
 
+    // `tsc` must run to completion before the bundler starts. Both emit into the same
+    // `outDir` (tsconfig `outDir` and the vite/craco build output), and the bundler empties
+    // that directory when it starts, so overlapping them corrupts the build output. Creating
+    // the promise eagerly used to spawn the bundler right here, i.e. in parallel with tsc.
     if (options?.tsc) {
-        return tsc(src, options).then(() => reactPromise);
+        return tsc(src, options).then(() => runReact());
     }
-    return reactPromise;
+    return runReact();
 }
 
 /** @deprecated use buildReact with the craco flag */

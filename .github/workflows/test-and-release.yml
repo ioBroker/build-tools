@@ -31,7 +31,7 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-check@v2.0.0
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           test-command: 'false'
           lint: true
 
@@ -48,7 +48,7 @@ jobs:
         with:
           build: true
           os: 'ubuntu-latest'
-          node-version: 22.x
+          node-version: 24.x
 
   # Deploys the final package to NPM
   deploy:
@@ -70,9 +70,6 @@ jobs:
     steps:
       - uses: ioBroker/testing-action-deploy@v1
         with:
-          node-version: '22.x'
+          node-version: '24.x'
           build: true
-          # Uncomment the following line if your adapter cannot be installed using 'npm ci'
-          # install-command: 'npm install'
-          # npm-token: ${{ secrets.NPM_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}

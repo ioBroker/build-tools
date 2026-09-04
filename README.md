@@ -223,9 +223,13 @@ node node_modules/@iobroker/build-tools/convertI18n.js path/to/i18n
 -->
 
 ## Changelog
+### **WORK IN PROGRESS**
+
+- (@GermanBluefox) Small change in the buildReact function to support vite build
+
 ### 3.0.1 (2026-02-04)
 
--   (@GermanBluefox) Packages updated, but minimal Node.JS version is now 20
+-   (@GermanBluefox) Packages updated, but minimal Node.js version is now 20
 
 ### 2.0.15 (2025-01-24)
 

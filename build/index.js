@@ -309,7 +309,7 @@ options) {
             (0, node_fs_1.writeFileSync)(`${src}/package.json`, JSON.stringify(data, null, 4));
         }
     }
-    const reactPromise = new Promise((resolve, reject) => {
+    const runReact = () => new Promise((resolve, reject) => {
         var _a, _b, _c, _d;
         const cpOptions = {
             stdio: 'pipe',
@@ -368,7 +368,11 @@ options) {
             if ((options === null || options === void 0 ? void 0 : options.ramSize) || (options === null || options === void 0 ? void 0 : options.exec) || (options === null || options === void 0 ? void 0 : options.craco)) {
                 delete cpOptions.stdio;
                 const cmd = 'node';
-                const args = [options.ramSize ? `--max-old-space-size=${options.ramSize}` : '', script, 'build'].filter(a => a);
+                const args = [
+                    options.ramSize ? `--max-old-space-size=${options.ramSize}` : '',
+                    script,
+                    'build',
+                ].filter(a => a);
                 const child = (0, node_child_process_1.execFile)(cmd, args, cpOptions);
                 console.log(`[${new Date().toISOString()}] Execute: "${cmd} ${args.join(' ')}" ${JSON.stringify(cpOptions)}`);
                 (_a = child.stderr) === null || _a === void 0 ? void 0 : _a.pipe(process.stderr);
@@ -427,10 +431,14 @@ options) {
             }
         }
     });
+    // `tsc` must run to completion before the bundler starts. Both emit into the same
+    // `outDir` (tsconfig `outDir` and the vite/craco build output), and the bundler empties
+    // that directory when it starts, so overlapping them corrupts the build output. Creating
+    // the promise eagerly used to spawn the bundler right here, i.e. in parallel with tsc.
     if (options === null || options === void 0 ? void 0 : options.tsc) {
-        return tsc(src, options).then(() => reactPromise);
+        return tsc(src, options).then(() => runReact());
     }
-    return reactPromise;
+    return runReact();
 }
 /** @deprecated use buildReact with the craco flag */
 function buildCraco(
